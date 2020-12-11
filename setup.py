@@ -4,7 +4,7 @@ from setuptools import setup, find_packages
 
 
 setup(
-    name='scenic-gazebo',
+    name='gzscenic',
     version='0.1dev',
     description='TBA',
     author='Afsoon Afzal',
@@ -12,6 +12,7 @@ setup(
     url='https://github.com/squaresLab/scenic-gazebo',
     license='mit',
     python_requires='>=3.8',
+    include_package_data=True,
     install_requires = [
         'pytest==4.4.0',
         'pexpect==4.6.0',
@@ -21,13 +22,10 @@ setup(
         'matplotlib==3.3.2',
         'psutil==5.6.7',
     ],
-    package_dir = {'': 'src'},
-    packages = [
-        'scenic-gazebo'
-    ],
+    packages = find_packages(),
     entry_points = {
         'console_scripts': [
-            'translate = translate:main',
+            'translate = gzscenic.translate:main',
         ]
     }
 )
