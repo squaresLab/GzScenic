@@ -1,5 +1,4 @@
 ## Scenic Gazebo
-----------------
 
 The tool that will translate a Scenic scene to models required by Gazebo.
 
