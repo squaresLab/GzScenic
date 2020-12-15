@@ -25,3 +25,4 @@ class Table:
     length: 1.5
     height: 0.3
     heading: Range(0, 360) deg
+    gz_name: 'Table'

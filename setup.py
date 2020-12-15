@@ -25,7 +25,7 @@ setup(
     packages = find_packages(),
     entry_points = {
         'console_scripts': [
-            'translate = gzscenic.translate:main',
+            'gzscenic = gzscenic.gzscenic:main',
         ]
     }
 )
