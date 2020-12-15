@@ -2,6 +2,7 @@
 We want to translate a Scene
 to sdf models.
 """
+import logging
 from typing import List, Tuple
 import os
 import math
@@ -10,6 +11,8 @@ import xml.etree.ElementTree as ET
 from scenic.core.scenarios import Scene
 from scenic.core.object_types import Object
 
+logger = logging.getLogger(__name__)
+logger.setLevel(logging.DEBUG)
 
 MODELS_PATH = os.path.join(os.path.dirname(__file__), 'gazebo/models')
 
