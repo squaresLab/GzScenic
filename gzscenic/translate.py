@@ -19,31 +19,34 @@ logger.setLevel(logging.DEBUG)
 MODELS_PATH = os.path.join(os.path.dirname(__file__), 'gazebo/models')
 
 
-def process_object(obj: Object, index: int, ws_root: ET.Element) -> Tuple[str, ET.ElementTree]:
+def process_object(obj: Object, index: int, ws_root: ET.Element) -> str:
     if obj.type == ModelTypes.NO_MODEL:
-        return None, None
+        return None
     name = obj.gz_name + str(index)
-    obj_et = ET.parse(os.path.join(MODELS_PATH, obj.gz_name + '.xml'))
-    root = obj_et.getroot().find('model')
-    position_txt = " ".join([str(obj.position.x), str(obj.position.y), '0',
-                            '0', '-0', str(obj.heading)])
-    pose_element = root.find('pose')
-    pose_element.text = position_txt
-    root.set('name', name)
     include = ET.Element('include')
     uri = ET.Element('uri')
-    uri.text = f'model://{name}'
+    uri.text = f'model://{obj.gz_name}'
     include.append(uri)
+    position_txt = " ".join([str(obj.position.x), str(obj.position.y), '0',
+                            '0', '-0', str(obj.heading)])
+    pose_element = ET.Element('pose')
+    pose_element.text = position_txt
+    include.append(pose_element)
+    name_element = ET.Element('name')
+    name_element.text = name
+    include.append(name_element)
     ws_root.append(include)
-    return name + '.sdf', obj_et
+    if obj.type == ModelTypes.CUSTOM_MODEL:
+        return os.path.join(MODELS_PATH, obj.gz_name + '.sdf')
+    return None
 
 
-def scene_to_sdf(scene: Scene) -> List[Tuple[str, ET.ElementTree]]:
-    workspace = ET.parse(os.path.join(MODELS_PATH, 'Workspace.xml'))
+def scene_to_sdf(scene: Scene) -> Tuple[ET.ElementTree, List[str]]:
+    workspace = ET.parse(os.path.join(MODELS_PATH, 'Workspace.sdf'))
     ws_root = workspace.getroot().find('world')
-    all_xmls = [('Workspace.world', workspace)]
+    model_files = []
     for i, obj in enumerate(scene.objects):
-        name, obj_et = process_object(obj, i, ws_root)
-        if obj_et:
-            all_xmls.append((name, obj_et))
-    return all_xmls
+        filename = process_object(obj, i, ws_root)
+        if filename:
+            model_files.append(filename)
+    return workspace, model_files

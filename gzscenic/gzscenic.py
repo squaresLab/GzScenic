@@ -7,6 +7,7 @@ import time
 import argparse
 import random
 import importlib.metadata
+from shutil import copy
 
 import scenic.syntax.translator as translator
 import scenic.core.errors as errors
@@ -132,10 +133,10 @@ def main():
                 scene.show(zoom=args.zoom, block=False)
                 plt.pause(delay)
                 plt.clf()
-            all_xmls = scene_to_sdf(scene)
-            for name, et in all_xmls:
-                logger.debug("#################")
-                et.write(f'out/{name}')
+            workspace, model_files = scene_to_sdf(scene)
+            workspace.write('out/Workspace.world')
+            for filename in model_files:
+                copy(filename, 'out/models/')
     else:   # Gather statistics over the specified number of scenes
         its = []
         startTime = time.time()
