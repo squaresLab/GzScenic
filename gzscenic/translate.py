@@ -11,6 +11,8 @@ import xml.etree.ElementTree as ET
 from scenic.core.scenarios import Scene
 from scenic.core.object_types import Object
 
+from .gazebo.object_types import ObjectTypes
+
 logger = logging.getLogger(__name__)
 logger.setLevel(logging.DEBUG)
 
@@ -18,7 +20,7 @@ MODELS_PATH = os.path.join(os.path.dirname(__file__), 'gazebo/models')
 
 
 def process_object(obj: Object, index: int, ws_root: ET.Element) -> Tuple[str, ET.ElementTree]:
-    if not hasattr(obj, 'gz_name'):
+    if obj.type == ObjectTypes.NO_MODEL:
         return None, None
     name = obj.gz_name + str(index)
     obj_et = ET.parse(os.path.join(MODELS_PATH, obj.gz_name + '.xml'))
