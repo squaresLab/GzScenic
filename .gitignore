@@ -1,6 +1,7 @@
 Pipfile
 
 .mypy_cache
+.DS_Store
 
 env
 bin
