@@ -1,5 +1,5 @@
 """Scenic model for Mars rover scenarios in Webots."""
-from gzscenic.gazebo.object_types import ObjectTypes
+from .model_types import ModelTypes
 
 # Set up workspace
 width = 5
@@ -12,7 +12,7 @@ class Goal:
     """Flag indicating the goal location."""
     width: 0.3
     length: 0.3
-    type: ObjectTypes.NO_MODEL
+    type: ModelTypes.NO_MODEL
 
 class TurtleBot:
     """The TurtleBot."""
@@ -20,7 +20,7 @@ class TurtleBot:
     length: 0.14
     height: 0.14
     position: Point in workspace
-    type: ObjectTypes.NO_MODEL
+    type: ModelTypes.NO_MODEL
 
 class Table:
     """A wooden table."""
@@ -29,4 +29,4 @@ class Table:
     height: 0.3
     heading: Range(0, 360) deg
     gz_name: 'Table'
-    type: ObjectTypes.CUSTOM_MODEL
+    type: ModelTypes.CUSTOM_MODEL
