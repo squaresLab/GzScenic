@@ -41,12 +41,18 @@ def process_object(obj: Object, index: int, ws_root: ET.Element) -> str:
     return None
 
 
-def scene_to_sdf(scene: Scene) -> Tuple[ET.ElementTree, List[str]]:
+def scene_to_sdf(scene: Scene, output: str) -> Tuple[ET.ElementTree, List[str]]:
+
+    os.makedirs(output, exist_ok=True)
+    models_path = os.path.join(output, 'models')
+    os.makedirs(models_path, exist_ok=True)
+
     workspace = ET.parse(os.path.join(MODELS_PATH, 'Workspace.sdf'))
     ws_root = workspace.getroot().find('world')
     model_files = []
     for i, obj in enumerate(scene.objects):
         filename = process_object(obj, i, ws_root)
         if filename:
+
             model_files.append(filename)
     return workspace, model_files

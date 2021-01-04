@@ -1,21 +1,23 @@
 """Scenic model for Mars rover scenarios in Webots."""
 from .model_types import ModelTypes
 
-class Goal:
+class BasicObject:
+    type: ModelTypes.NO_MODEL
+    dynamic_size: False
+
+class Goal(BasicObject):
     """Flag indicating the goal location."""
     width: 0.3
     length: 0.3
-    type: ModelTypes.NO_MODEL
 
-class TurtleBot:
+class TurtleBot(BasicObject):
     """The TurtleBot."""
     width: 0.14
     length: 0.14
     height: 0.14
     position: Point in workspace
-    type: ModelTypes.NO_MODEL
 
-class Table:
+class Table(BasicObject):
     """A wooden table."""
     width: 0.8
     length: 1.5
@@ -24,13 +26,14 @@ class Table:
     gz_name: 'Table'
     type: ModelTypes.CUSTOM_MODEL
 
-class Wall:
+class Wall(BasicObject):
     """A simple wall"""
     heading: Range(0, 360) deg
     width: 0.1
     height: 1.0
-    type: ModelTypes.NO_MODEL
-
+    gz_name: 'grey_wall'
+    type: ModelTypes.GAZEBO_MODEL
+    dynamic_size: True
 
 class Room(Workspace):
 

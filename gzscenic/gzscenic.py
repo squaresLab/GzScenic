@@ -74,6 +74,7 @@ def setup_arg_parser():
     
     # Positional arguments
     parser.add_argument('scenicFile', help='a Scenic file to run', metavar='FILE')
+    parser.add_argument('outputPath', help='Path to the output directory')
     
     # Parse arguments and set up configuration
     return parser.parse_args()
@@ -133,10 +134,7 @@ def main():
                 scene.show(zoom=args.zoom, block=False)
                 plt.pause(delay)
                 plt.clf()
-            workspace, model_files = scene_to_sdf(scene)
-            workspace.write('out/Workspace.world')
-            for filename in model_files:
-                copy(filename, 'out/models/')
+            scene_to_sdf(scene, args.outputPath)
     else:   # Gather statistics over the specified number of scenes
         its = []
         startTime = time.time()
