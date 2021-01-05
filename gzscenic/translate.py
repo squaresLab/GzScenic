@@ -7,6 +7,9 @@ from typing import List, Tuple
 import os
 import math
 import xml.etree.ElementTree as ET
+from tempfile import mkstemp
+import wget
+import shutil
 
 from scenic.core.scenarios import Scene
 from scenic.core.object_types import Object
@@ -17,15 +20,13 @@ logger = logging.getLogger(__name__)
 logger.setLevel(logging.DEBUG)
 
 MODELS_PATH = os.path.join(os.path.dirname(__file__), 'gazebo/models')
+CONFIG_PATH = os.path.join(os.path.dirname(__file__), 'gazebo/model.config')
 
 
-def process_object(obj: Object, index: int, ws_root: ET.Element) -> str:
-    if obj.type == ModelTypes.NO_MODEL:
-        return None
-    name = obj.gz_name + str(index)
+def generate_include(obj: Object, model_name: str, name: str) -> ET.Element:
     include = ET.Element('include')
     uri = ET.Element('uri')
-    uri.text = f'model://{obj.gz_name}'
+    uri.text = f'model://{model_name}'
     include.append(uri)
     position_txt = " ".join([str(obj.position.x), str(obj.position.y), '0',
                             '0', '-0', str(obj.heading)])
@@ -35,24 +36,68 @@ def process_object(obj: Object, index: int, ws_root: ET.Element) -> str:
     name_element = ET.Element('name')
     name_element.text = name
     include.append(name_element)
-    ws_root.append(include)
+    return include
+
+
+def process_object(obj: Object, index: int, ws_root: ET.Element) -> Tuple[str, str]:
+    if obj.type == ModelTypes.NO_MODEL:
+        return '', ''
+    name = obj.gz_name + str(index)
+    if not obj.dynamic_size:
+        model_name = obj.gz_name
+    else:
+        model_name = name
+    ws_root.append(generate_include(obj, model_name, name))
+
     if obj.type == ModelTypes.CUSTOM_MODEL:
-        return os.path.join(MODELS_PATH, obj.gz_name + '.sdf')
-    return None
+        filepath = os.path.join(MODELS_PATH, obj.gz_name + '.sdf')
+    elif obj.type == ModelTypes.GAZEBO_MODEL and obj.dynamic_size:
+        filepath = os.path.join('/tmp/', name + '.sdf')
+        url = f'https://raw.githubusercontent.com/osrf/gazebo_models/master/{obj.gz_name}/model.sdf'
+        wget.download(url, filepath)
+    else:
+        filepath = ''
+
+    if obj.dynamic_size:
+        model_et = ET.parse(filepath)
+        model = model_et.getroot()
+        # TODO: assuming it's always a single box
+        size_text = f'{obj.width} {obj.length} {obj.height}'
+        for s in model.findall('.//geometry/box/size'):
+            s.text = size_text
+        # end of TODO
+        model.find('./model').set('name', model_name)
+        _, tf = mkstemp(dir='/tmp/', suffix='.sdf')
+        model_et.write(tf)
+        return model_name, tf
+    return model_name, filepath
 
 
-def scene_to_sdf(scene: Scene, output: str) -> Tuple[ET.ElementTree, List[str]]:
+def scene_to_sdf(scene: Scene, output: str) -> None:
 
-    os.makedirs(output, exist_ok=True)
-    models_path = os.path.join(output, 'models')
-    os.makedirs(models_path, exist_ok=True)
+    if os.path.exists(output):
+        shutil.rmtree(output)
+    os.makedirs(output)
+
 
     workspace = ET.parse(os.path.join(MODELS_PATH, 'Workspace.sdf'))
     ws_root = workspace.getroot().find('world')
-    model_files = []
+    model_files = {}
     for i, obj in enumerate(scene.objects):
-        filename = process_object(obj, i, ws_root)
-        if filename:
+        model_name, filepath = process_object(obj, i, ws_root)
+        if filepath and model_name not in model_files:
+            model_files[model_name] = filepath
+    workspace.write(os.path.join(output, 'workspace.world'))
 
-            model_files.append(filename)
-    return workspace, model_files
+    if model_files:
+        models_path = os.path.join(output, 'models')
+        os.makedirs(models_path, exist_ok=True)
+        config_et = ET.parse(CONFIG_PATH)
+        conf_name = config_et.getroot().find('./name')
+        for model_name, filepath in model_files.items():
+            model_dir = os.path.join(models_path, model_name)
+            os.makedirs(model_dir)
+            conf_name.text = model_name
+            config_et.write(os.path.join(model_dir, 'model.config'))
+            shutil.copyfile(filepath, os.path.join(model_dir, 'model.sdf'))
+

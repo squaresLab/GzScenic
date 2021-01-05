@@ -21,6 +21,7 @@ setup(
         'ruamel.yaml==0.15.89',
         'matplotlib==3.3.2',
         'psutil==5.6.7',
+        'wget==3.2'
     ],
     packages = find_packages(),
     entry_points = {
