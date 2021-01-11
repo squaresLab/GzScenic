@@ -5,10 +5,12 @@ class BasicObject:
     type: ModelTypes.NO_MODEL
     dynamic_size: False
 
+
 class Goal(BasicObject):
     """Flag indicating the goal location."""
     width: 0.3
     length: 0.3
+
 
 class TurtleBot(BasicObject):
     """The TurtleBot."""
@@ -16,6 +18,7 @@ class TurtleBot(BasicObject):
     length: 0.14
     height: 0.14
     position: Point in workspace
+
 
 class Table(BasicObject):
     """A wooden table."""
@@ -26,6 +29,30 @@ class Table(BasicObject):
     gz_name: 'Table'
     type: ModelTypes.CUSTOM_MODEL
 
+
+class ConstructionCone(BasicObject):
+    """A construction cone"""
+    width: 0.40
+    length: 0.40
+    height: 0.40
+    type: ModelTypes.GAZEBO_MODEL
+    gz_name: 'construction_cone'
+    heading: Range(0, 360) deg
+    position: Point in workspace
+
+
+class Box(BasicObject):
+    """A simple box"""
+    width: Range(0.1, 1.5)
+    length: Range(0.1, 1.5)
+    height: 0.5
+    type: ModelTypes.CUSTOM_MODEL
+    dynamic_size: True
+    gz_name: 'Box'
+    heading: Range(0, 360) deg
+    position: Point in workspace
+
+
 class Wall(BasicObject):
     """A simple wall"""
     heading: Range(0, 360) deg
@@ -34,6 +61,7 @@ class Wall(BasicObject):
     gz_name: 'grey_wall'
     type: ModelTypes.GAZEBO_MODEL
     dynamic_size: True
+
 
 class Room(Workspace):
 

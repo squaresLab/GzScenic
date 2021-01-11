@@ -12,13 +12,18 @@ bottleneck = OrientedPoint offset by Range(-1.5, 1.5) @ Range(0.5, 1.5), facing 
 
 Table at bottleneck
 
-#leftEdge = OrientedPoint at bottleneck offset by -halfGap @ 0,
-#    facing Range(60, 120) deg relative to bottleneck.heading
-#rightEdge = OrientedPoint at bottleneck offset by halfGap @ 0,
-#    facing Range(-120, -60) deg relative to bottleneck.heading
+leftEdge = OrientedPoint at bottleneck offset by -halfGap @ 0,
+    facing Range(60, 120) deg relative to bottleneck.heading
+rightEdge = OrientedPoint at bottleneck offset by halfGap @ 0,
+    facing Range(-120, -60) deg relative to bottleneck.heading
 
 #Pipe ahead of leftEdge, with length Range(1, 2)
 #Pipe ahead of rightEdge, with length Range(1, 2)
+
+ConstructionCone
+ConstructionCone
+
+Box with length 1.2
 
 # Other junk because why not?
 
