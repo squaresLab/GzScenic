@@ -8,8 +8,9 @@ class BasicObject:
 
 class Goal(BasicObject):
     """Flag indicating the goal location."""
-    width: 0.3
-    length: 0.3
+    width: 0.14
+    length: 0.14
+    gz_name: 'waypoint'
 
 
 class TurtleBot(BasicObject):
@@ -18,6 +19,7 @@ class TurtleBot(BasicObject):
     length: 0.14
     height: 0.14
     position: Point in workspace
+    gz_name: 'turtlebot3'
 
 
 class Table(BasicObject):

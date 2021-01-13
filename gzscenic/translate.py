@@ -10,6 +10,7 @@ import xml.etree.ElementTree as ET
 from tempfile import mkstemp
 import wget
 import shutil
+import yaml
 
 from scenic.core.scenarios import Scene
 from scenic.core.object_types import Object
@@ -80,13 +81,24 @@ def scene_to_sdf(scene: Scene, output: str) -> None:
     os.makedirs(output)
 
 
+    no_models = {}
     workspace = ET.parse(os.path.join(MODELS_PATH, 'Workspace.sdf'))
     ws_root = workspace.getroot().find('world')
     model_files = {}
     for i, obj in enumerate(scene.objects):
-        model_name, filepath = process_object(obj, i, ws_root)
-        if filepath and model_name not in model_files:
-            model_files[model_name] = filepath
+        if obj.type == ModelTypes.NO_MODEL:
+            if obj.gz_name in no_models:
+                no_models[obj.gz_name].append({'x': obj.position.x,
+                                               'y': obj.position.y,
+                                               'z': 0.0})
+            else:
+                no_models[obj.gz_name] = [{'x': obj.position.x,
+                                           'y': obj.position.y,
+                                           'z': 0.0}]
+        else:
+            model_name, filepath = process_object(obj, i, ws_root)
+            if filepath and model_name not in model_files:
+                model_files[model_name] = filepath
     workspace.write(os.path.join(output, 'workspace.world'))
 
     if model_files:
@@ -100,4 +112,9 @@ def scene_to_sdf(scene: Scene, output: str) -> None:
             conf_name.text = model_name
             config_et.write(os.path.join(model_dir, 'model.config'))
             shutil.copyfile(filepath, os.path.join(model_dir, 'model.sdf'))
+
+    if no_models:
+        pose_file = os.path.join(output, 'poses.yaml')
+        with open(pose_file, 'w') as f:
+            yaml.dump(no_models, f)
 
