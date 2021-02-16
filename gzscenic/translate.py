@@ -90,11 +90,13 @@ def scene_to_sdf(scene: Scene, output: str) -> None:
             if obj.gz_name in no_models:
                 no_models[obj.gz_name].append({'x': obj.position.x,
                                                'y': obj.position.y,
-                                               'z': 0.0})
+                                               'z': 0.0,
+                                               'heading': obj.heading})
             else:
                 no_models[obj.gz_name] = [{'x': obj.position.x,
                                            'y': obj.position.y,
-                                           'z': 0.0}]
+                                           'z': 0.0,
+                                           'heading': obj.heading}]
         else:
             model_name, filepath = process_object(obj, i, ws_root)
             if filepath and model_name not in model_files:

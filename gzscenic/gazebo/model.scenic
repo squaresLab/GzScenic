@@ -10,6 +10,7 @@ class Goal(BasicObject):
     """Flag indicating the goal location."""
     width: 0.14
     length: 0.14
+    heading: Range(0, 360) deg
     gz_name: 'waypoint'
 
 
@@ -65,16 +66,25 @@ class Wall(BasicObject):
     dynamic_size: True
 
 
+def create_room(length, width, x=0, y=0, sides='NSWE'):
+    l2 = length/2-0.1
+    w2 = width/2-0.1
+    if 'N' in sides:
+        Wall at x @ l2, facing 90 deg, with length (width-0.1)
+    if 'S' in sides:
+        Wall at x @ -l2, facing 90 deg, with length (width-0.1)
+    if 'E' in sides:
+        Wall at w2 @ y, facing 0 deg, with length (length-0.4)
+    if 'W' in sides:
+        Wall at -w2 @ y, facing 0 deg, with length (length-0.4)
+
 class Room(Workspace):
 
     def __init__(self, region):
         super().__init__(region)
-        l2 = self.region.length/2-0.1
-        w2 = self.region.width/2-0.1
-        Wall at 0 @ l2 relative to self.region.position, facing 90 deg, with length (self.region.width-0.1)
-        Wall at 0 @ -l2 relative to self.region.position, facing 90 deg, with length (self.region.width-0.1)
-        Wall at w2 @ 0 relative to self.region.position, facing 0 deg, with length (self.region.length-0.4)
-        Wall at -w2 @ 0 relative to self.region.position, facing 0 deg, with length (self.region.length-0.4)
+        create_room(self.region.length, self.region.width)
+
+
 
 # Set up workspace
 width = 5
