@@ -8,6 +8,8 @@ import argparse
 import random
 import importlib.metadata
 from shutil import copy
+import importlib
+import os
 
 import scenic.syntax.translator as translator
 import scenic.core.errors as errors
@@ -33,6 +35,7 @@ def setup_arg_parser():
     
     mainOptions = parser.add_argument_group('main options')
     mainOptions.add_argument('-s', '--seed', help='random seed', type=int)
+    mainOptions.add_argument('--load', help='load a scenic file', type=str, default='')
     mainOptions.add_argument('--verbose', help='verbose logging',
                              action='store_true')
     mainOptions.add_argument('-p', '--param', help='override a global parameter',
@@ -111,6 +114,14 @@ def main():
         logger.info(f'Using random seed = {args.seed}')
         random.seed(args.seed)
     
+    if args.load:
+        if args.load.rpartition('.')[-1] not in ['sc', 'scenic']:
+            raise Exception('The file to be loaded needs to be .sc or .scenic')
+        spec = importlib.util.spec_from_file_location('model', args.load, loader=translator.ScenicLoader(os.path.abspath(args.load), os.path.basename(args.load)))
+        module = importlib.util.module_from_spec(spec)
+        sys.modules['gzscenic.model'] = module
+        spec.loader.exec_module(module)
+
     # Load scenario from file
     logger.info('Beginning scenario construction...')
     startTime = time.time()

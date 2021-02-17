@@ -1,3 +1,2 @@
-include gzscenic/gazebo/model.scenic
 include gzscenic/gazebo/model.config
 include gzscenic/gazebo/models/*

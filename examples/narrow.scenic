@@ -1,7 +1,10 @@
+from gzscenic.model import *
 
-from gzscenic.gazebo.model import *
 
 ego = TurtleBot at 0 @ -2
+
+
+create_room(workspace.region.length, workspace.region.width)
 
 # Bottleneck made of two pipes with a rock in between
 
