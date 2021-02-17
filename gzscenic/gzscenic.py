@@ -10,12 +10,14 @@ import importlib.metadata
 from shutil import copy
 import importlib
 import os
+import yaml
 
 import scenic.syntax.translator as translator
 import scenic.core.errors as errors
 from scenic.core.simulators import SimulationCreationError
 
 from .translate import scene_to_sdf
+from .model_generator import generate_model
 
 
 logger = logging.getLogger(__name__)
@@ -120,7 +122,18 @@ def main():
     if args.seed is not None:
         logger.info(f'Using random seed = {args.seed}')
         random.seed(args.seed)
-    
+
+    if args.input:
+        spec = importlib.util.spec_from_file_location('model', 'gzscenic/base.scenic', loader=translator.ScenicLoader(os.path.abspath('gzscenic/base.scenic'), 'base.scenic'))
+        module = importlib.util.module_from_spec(spec)
+        sys.modules['gzscenic.model'] = module
+        spec.loader.exec_module(module)
+
+        with open(args.input, 'r') as f:
+            input_objects = yaml.load(f)
+        for obj in input_objects:
+            print(generate_model(obj))
+
     if args.load:
         if args.load.rpartition('.')[-1] not in ['sc', 'scenic']:
             raise Exception('The file to be loaded needs to be .sc or .scenic')
