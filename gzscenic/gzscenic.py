@@ -36,6 +36,7 @@ def setup_arg_parser():
     mainOptions = parser.add_argument_group('main options')
     mainOptions.add_argument('-s', '--seed', help='random seed', type=int)
     mainOptions.add_argument('--load', help='load a scenic file', type=str, default='')
+    mainOptions.add_argument('--input', help='path to input yaml file', type=str, default='')
     mainOptions.add_argument('--verbose', help='verbose logging',
                              action='store_true')
     mainOptions.add_argument('-p', '--param', help='override a global parameter',
@@ -100,6 +101,12 @@ def generateScene(scenario, args):
 def main():
     args = setup_arg_parser()
     setup_logging(args.verbose)
+
+    if not (args.input or args.load):
+        # Neither inputs were provided
+        raise Exception("You need to either provide the input yaml file (--input)"
+                        "or a scenic file to load (--load)")
+
     delay = args.delay
     errors.showInternalBacktrace = args.full_backtrace
     if args.pdb:
