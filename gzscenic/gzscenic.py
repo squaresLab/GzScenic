@@ -8,7 +8,6 @@ import argparse
 import random
 import importlib.metadata
 from shutil import copy
-import importlib
 import os
 import yaml
 
@@ -18,6 +17,7 @@ from scenic.core.simulators import SimulationCreationError
 
 from .translate import scene_to_sdf
 from .model_generator import generate_model
+from .utils import load_module
 
 
 logger = logging.getLogger(__name__)
@@ -120,23 +120,19 @@ def main():
         logger.info(f'Using random seed = {args.seed}')
         random.seed(args.seed)
 
-    if not args.load:
-        spec = importlib.util.spec_from_file_location('model', 'gzscenic/base.scenic', loader=translator.ScenicLoader(os.path.abspath('gzscenic/base.scenic'), 'base.scenic'))
-        module = importlib.util.module_from_spec(spec)
-        sys.modules['gzscenic.model'] = module
-        spec.loader.exec_module(module)
+    with open(args.input, 'r') as f:
+        input_objects = yaml.load(f)
+    input_dir = os.path.dirname(args.input)
+    models_dir = input_objects.get('models_dir', '')
 
-        with open(args.input, 'r') as f:
-            input_objects = yaml.load(f)
-        for obj in input_objects:
-            print(generate_model(obj, os.path.dirname(args.input)))
+    if not args.load:
+        load_module('gzscenic/base.scenic')
+        for obj in input_objects['models']:
+            print(generate_model(obj, input_dir, models_dir))
     else:
         if args.load.rpartition('.')[-1] not in ['sc', 'scenic']:
             raise Exception('The file to be loaded needs to be .sc or .scenic')
-        spec = importlib.util.spec_from_file_location('model', args.load, loader=translator.ScenicLoader(os.path.abspath(args.load), os.path.basename(args.load)))
-        module = importlib.util.module_from_spec(spec)
-        sys.modules['gzscenic.model'] = module
-        spec.loader.exec_module(module)
+        load_module(args.load)
 
     # Load scenario from file
     logger.info('Beginning scenario construction...')
@@ -163,5 +159,5 @@ def main():
                 plt.pause(delay)
                 plt.clf()
 
-        scene_to_sdf(scene, args.outputPath)
+        scene_to_sdf(scene, input_dir, input_objects['world'], models_dir, args.outputPath)
 

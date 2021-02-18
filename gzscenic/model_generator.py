@@ -10,7 +10,7 @@ import math as m
 import pathlib
 
 from .gazebo.model_types import ModelTypes
-
+from .utils import handle_path, gazebo_dir_and_path
 
 def Rx(theta):
     return np.matrix([[ 1, 0           , 0           ],
@@ -142,7 +142,7 @@ def to_camel_case(snake_str):
     return ''.join(x.title() for x in components)
 
 
-def to_annotations(model_desc: t.Dict[str, t.Any], input_dir: str):
+def to_annotations(model_desc: t.Dict[str, t.Any], input_dir: str, models_dir: str):
     typ = ModelTypes[model_desc['type']]
     name = model_desc['name']
     annotations = {'gz_name': name,
@@ -152,31 +152,27 @@ def to_annotations(model_desc: t.Dict[str, t.Any], input_dir: str):
                             'length': model_desc['length']})
 
     elif typ == ModelTypes.CUSTOM_MODEL:
-        # TODO we need to read .sdf file from model_desc['path']
-        # and figure out the size values and whether we can
-        # modify the dynamically
-        length, width, height = process_sdf(input_dir, model_desc['path'])
-        annotations.update({'length': length,
-                            'width': width})
+        dir_path = os.path.join(input_dir, models_dir)
+        dir_path = os.path.join(dir_path, name)
+        url = model_desc.get('url', '')
     elif typ == ModelTypes.GAZEBO_MODEL:
         # TODO we need to download files from gazebo repo
         # and do the same as CUSTOM_MODEL
-        filepath = os.path.join('/tmp/', name)
-        if not os.path.exists(filepath):
-            url = f'https://github.com/osrf/gazebo_models/trunk/{name}'
-            #FIXME We should not use svn
-            os.system(f'svn export {url} {filepath}')
-        length, width, height = process_sdf(filepath, 'model.sdf')
+        dir_path, url = gazebo_dir_and_path(os.path.join(input_dir, models_dir), name)
+    
+    if typ != ModelTypes.NO_MODEL:
+        sdf_path = handle_path(dir_path, url)
+        length, width, height = process_sdf(dir_path, sdf_path)
         annotations.update({'length': length,
                             'width': width})
     return annotations
 
 
-def generate_model(model_desc: t.Dict[str, t.Any], input_dir: str):
+def generate_model(model_desc: t.Dict[str, t.Any], input_dir: str, models_dir: t.Optional[str] = ''):
     import gzscenic.model as base
     model_name = to_camel_case(model_desc['name'])
     print(model_name)
-    model = type(model_name, (base.BaseModel,), {'__module__': 'gzscenic.model', '__annotations__': to_annotations(model_desc, input_dir)})
+    model = type(model_name, (base.BaseModel,), {'__module__': 'gzscenic.model', '__annotations__': to_annotations(model_desc, input_dir, models_dir)})
     setattr(base, model_name, model)
     return model
 

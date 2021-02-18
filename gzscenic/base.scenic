@@ -16,4 +16,5 @@ class BaseModel:
     position: Point in workspace
     gz_name: 'base'
     heading: Range(0, 360) deg
+    z: 0.0
 
