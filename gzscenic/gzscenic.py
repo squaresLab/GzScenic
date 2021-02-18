@@ -38,9 +38,12 @@ def setup_arg_parser():
     mainOptions = parser.add_argument_group('main options')
     mainOptions.add_argument('-s', '--seed', help='random seed', type=int)
     mainOptions.add_argument('--load', help='load a scenic file', type=str, default='')
-    mainOptions.add_argument('--input', help='path to input yaml file', type=str, default='')
     mainOptions.add_argument('--verbose', help='verbose logging',
                              action='store_true')
+    mainOptions.add_argument('--noplt', action='store_true',
+                            help='do not create plots for scenes')
+    mainOptions.add_argument('-n', '--scenes-num', type=int,
+                            help='maximum number of scenes to generate. unlimited by default')
     mainOptions.add_argument('-p', '--param', help='override a global parameter',
                              nargs=2, default=[], action='append', metavar=('PARAM', 'VALUE'))
     mainOptions.add_argument('-m', '--model', help='specify a Scenic world model', default=None)
@@ -56,7 +59,7 @@ def setup_arg_parser():
                             type=float, default=1)
     
     # Debugging options
-    debugOpts = parser.add_argument_group('debugging options')
+    debugOpts = parser.add_argument_group('Scenic debugging options')
     debugOpts.add_argument('--show-params', help='show values of global parameters',
                            action='store_true')
     debugOpts.add_argument('-b', '--full-backtrace', help='show full internal backtraces',
@@ -72,14 +75,13 @@ def setup_arg_parser():
     debugOpts.add_argument('--dump-python', help='dump Python equivalent of final AST',
                            action='store_true')
     debugOpts.add_argument('--no-pruning', help='disable pruning', action='store_true')
-    debugOpts.add_argument('--gather-stats', type=int, metavar='N',
-                           help='collect timing statistics over this many scenes')
     
     parser.add_argument('-h', '--help', action='help', default=argparse.SUPPRESS,
                         help=argparse.SUPPRESS)
     
     # Positional arguments
-    parser.add_argument('scenicFile', help='a Scenic file to run', metavar='FILE')
+    parser.add_argument('scenicFile', help='a Scenic file to run', metavar='ScenicFILE')
+    parser.add_argument('input', help='path to input yaml file', type=str, metavar='inputFILE')
     parser.add_argument('outputPath', help='Path to the output directory')
     
     # Parse arguments and set up configuration
@@ -104,11 +106,6 @@ def main():
     args = setup_arg_parser()
     setup_logging(args.verbose)
 
-    if not (args.input or args.load):
-        # Neither inputs were provided
-        raise Exception("You need to either provide the input yaml file (--input)"
-                        "or a scenic file to load (--load)")
-
     delay = args.delay
     errors.showInternalBacktrace = args.full_backtrace
     if args.pdb:
@@ -123,7 +120,7 @@ def main():
         logger.info(f'Using random seed = {args.seed}')
         random.seed(args.seed)
 
-    if args.input:
+    if not args.load:
         spec = importlib.util.spec_from_file_location('model', 'gzscenic/base.scenic', loader=translator.ScenicLoader(os.path.abspath('gzscenic/base.scenic'), 'base.scenic'))
         module = importlib.util.module_from_spec(spec)
         sys.modules['gzscenic.model'] = module
@@ -133,8 +130,7 @@ def main():
             input_objects = yaml.load(f)
         for obj in input_objects:
             print(generate_model(obj, os.path.dirname(args.input)))
-
-    if args.load:
+    else:
         if args.load.rpartition('.')[-1] not in ['sc', 'scenic']:
             raise Exception('The file to be loaded needs to be .sc or .scenic')
         spec = importlib.util.spec_from_file_location('model', args.load, loader=translator.ScenicLoader(os.path.abspath(args.load), os.path.basename(args.load)))
@@ -154,27 +150,18 @@ def main():
     totalTime = time.time() - startTime
     logger.info(f'Scenario constructed in {totalTime:.2f} seconds.')
     
-    if args.gather_stats is None:   # Generate scenes interactively until killed
+    if args.noplt:
         import matplotlib.pyplot as plt
-        successCount = 0
-        while True:
-            scene, _ = generateScene(scenario, args)
+    success_count = 0
+    while not args.scenes_num or success_count <= args.scenes_num:
+        scene, _ = generateScene(scenario, args)
+        if not args.noplt:
             if delay is None:
                 scene.show(zoom=args.zoom)
             else:
                 scene.show(zoom=args.zoom, block=False)
                 plt.pause(delay)
                 plt.clf()
-            scene_to_sdf(scene, args.outputPath)
-    else:   # Gather statistics over the specified number of scenes
-        its = []
-        startTime = time.time()
-        while len(its) < args.gather_stats:
-            scene, iterations = generateScene(scenario, args)
-            its.append(iterations)
-        totalTime = time.time() - startTime
-        count = len(its)
-        logger.info(f'Sampled {len(its)} scenes in {totalTime:.2f} seconds.')
-        logger.info(f'Average iterations/scene: {sum(its)/count}')
-        logger.info(f'Average time/scene: {totalTime/count:.2f} seconds.')
+
+        scene_to_sdf(scene, args.outputPath)
 
