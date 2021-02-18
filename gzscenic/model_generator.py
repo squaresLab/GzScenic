@@ -8,27 +8,44 @@ import itertools
 import xml.etree.ElementTree as ET
 import math as m
 import pathlib
+import attr
 
 from .gazebo.model_types import ModelTypes
 from .utils import handle_path, gazebo_dir_and_path
+from scenic.core.distributions import Range
+from scenic.core.specifiers import PropertyDefault
+
+
+@attr.s
+class ModelInfo:
+    length: float = attr.ib()
+    width: float = attr.ib()
+    height: float = attr.ib()
+    dynamic_size: bool = attr.ib()
+    eq_width_length: bool = attr.ib(default=False)
+
 
 def Rx(theta):
     return np.matrix([[ 1, 0           , 0           ],
                      [ 0, m.cos(theta),-m.sin(theta)],
                      [ 0, m.sin(theta), m.cos(theta)]])
-  
+
+
 def Ry(theta):
     return np.matrix([[ m.cos(theta), 0, m.sin(theta)],
                      [ 0           , 1, 0           ],
                      [-m.sin(theta), 0, m.cos(theta)]])
-  
+
+
 def Rz(theta):
     return np.matrix([[ m.cos(theta), -m.sin(theta), 0 ],
                      [ m.sin(theta), m.cos(theta) , 0 ],
                      [ 0           , 0            , 1 ]])
 
+
 def rotation_matrix(roll, pitch, yaw):
     return Rx(roll) * Ry(pitch) * Rz(yaw)
+
 
 def load_mesh_file(mesh_file_path: str):
     return collada.Collada(mesh_file_path)
@@ -65,11 +82,12 @@ def bounding_box(min_bounds: np.array, max_bounds: np.array) -> t.Tuple[np.array
     return geom_center, bounding_box, extrema
 
 
-def process_sdf(input_dir: str, sdf_file_path: str) -> t.Tuple[float, float, float]:
+def process_sdf(input_dir: str, sdf_file_path: str) -> ModelInfo:
 
     min_bounds = []
     max_bounds = []
 
+    eq_width_length = False
     sdf = ET.parse(os.path.join(input_dir, sdf_file_path))
     for collision in sdf.findall('.//collision'):
         pose = collision.find('pose')
@@ -106,6 +124,7 @@ def process_sdf(input_dir: str, sdf_file_path: str) -> t.Tuple[float, float, flo
                 # TODO Handle scale and rotation
                 min_bounds.append(min_b * scale)
                 max_bounds.append(max_b * scale)
+                eq_width_length = True
                 continue
             elif c.tag == 'box':
                 size = c.find('size').text
@@ -113,6 +132,7 @@ def process_sdf(input_dir: str, sdf_file_path: str) -> t.Tuple[float, float, flo
                 vertices = np.array([[-size_x, -size_y, -size_z],
                                      [-size_x, -size_y, size_z]])
             elif c.tag == 'cylinder' or c.tag == 'sphere':
+                eq_width_length = True
                 radius = float(c.find('radius').text)
                 if c.tag == 'cylinder':
                     length = float(c.find('length').text)/2
@@ -134,7 +154,11 @@ def process_sdf(input_dir: str, sdf_file_path: str) -> t.Tuple[float, float, flo
 
     measures = (np.max(max_bounds, axis=0) - np.min(min_bounds, axis=0))[0]
     print(measures)
-    return measures[0], measures[1], measures[2]
+    return ModelInfo(measures[0],
+                     measures[1],
+                     measures[2],
+                     len(max_bounds) == 1,
+                     eq_width_length)
 
 
 def to_camel_case(snake_str):
@@ -162,9 +186,21 @@ def to_annotations(model_desc: t.Dict[str, t.Any], input_dir: str, models_dir: s
     
     if typ != ModelTypes.NO_MODEL:
         sdf_path = handle_path(dir_path, url)
-        length, width, height = process_sdf(dir_path, sdf_path)
-        annotations.update({'length': length,
-                            'width': width})
+        info = process_sdf(dir_path, sdf_path)
+        if not info.dynamic_size:
+            annotations.update({'length': info.length,
+                                'width': info.width,
+                                'height': info.height})
+        else:
+            annotations.update({'length': Range(info.length/2, info.length*2),
+                                'width': Range(info.width/2, info.width*2),
+                                'height': Range(info.height/2, info.height*2),
+                                'dynamic_size': info.dynamic_size,
+                                'o_length': info.length,
+                                'o_width': info.width,
+                                'o_height': info.height})
+            if info.eq_width_length:
+                annotations['width'] = PropertyDefault(('length',), {}, lambda self: self.length)
 
     if 'z' in model_desc:
         annotations['z'] = model_desc['z']

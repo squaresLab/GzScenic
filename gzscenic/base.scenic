@@ -13,6 +13,7 @@ class BaseModel:
     dynamic_size: False
     width: 0.0
     length: 0.0
+    height: 0.0
     position: Point in workspace
     gz_name: 'base'
     heading: Range(0, 360) deg
