@@ -7,6 +7,7 @@ import numpy as np
 import itertools
 import xml.etree.ElementTree as ET
 import math as m
+import pathlib
 
 from .gazebo.model_types import ModelTypes
 
@@ -38,13 +39,18 @@ def mesh_min_max_bounds(mesh: collada.Collada) -> t.Tuple[np.array, np.array]:
     min_bounds = []
     max_bounds = []
 
+    unit = 1
+
+    if mesh.assetInfo:
+        unit = float(mesh.assetInfo.unitmeter)
+
     for geometry in mesh.scene.objects('geometry'):
         for primitive in geometry.primitives():
             v = primitive.vertex
             min_bounds.append(v.min(axis=0))
             max_bounds.append(v.max(axis=0))
 
-    return np.array(min_bounds), np.array(max_bounds)
+    return np.array(min_bounds) * unit, np.array(max_bounds) * unit
 
 
 def bounding_box(min_bounds: np.array, max_bounds: np.array) -> t.Tuple[np.array, np.array, np.array]:
@@ -59,21 +65,48 @@ def bounding_box(min_bounds: np.array, max_bounds: np.array) -> t.Tuple[np.array
     return geom_center, bounding_box, extrema
 
 
-def process_sdf(sdf_file_path: str) -> t.Tuple[float, float, float]:
+def process_sdf(input_dir: str, sdf_file_path: str) -> t.Tuple[float, float, float]:
 
     min_bounds = []
     max_bounds = []
 
-    sdf = ET.parse(sdf_file_path)
+    sdf = ET.parse(os.path.join(input_dir, sdf_file_path))
     for collision in sdf.findall('.//collision'):
-        pose = collision.find('pose').text
-        x, y, z, roll, pitch, yaw = tuple(map(float, pose.split(' ')))
+        pose = collision.find('pose')
+        if pose:
+            x, y, z, roll, pitch, yaw = tuple(map(float, pose.text.split(' ')))
+        else:
+            x, y, z, roll, pitch, yaw = 0, 0, 0, 0, 0, 0
         geometry = collision.find('geometry')
         for c in geometry.getchildren():
             if c.tag == 'empty':
                 continue
-            elif c.tag in ['heightmap', 'image', 'mesh', 'plane', 'polyline']:
+            elif c.tag in ['heightmap', 'image', 'plane', 'polyline']:
                 raise Exception(f'geometry {c.tag} is not supported yet')
+            elif c.tag == 'mesh':
+                uri = c.find('uri').text
+                if uri.startswith('model://'):
+                    uri = uri[len('model://'):]
+                scale = c.find('scale')
+                if scale is not None:
+                    scale = list(map(float, scale.text.split(' ')))
+                else:
+                    scale = [1, 1, 1]
+                path = pathlib.Path(uri)
+                mesh_path = ''
+                for i in range(len(path.parts)):
+                    rel_path = pathlib.Path(input_dir, *path.parts[i:])
+                    if rel_path.exists():
+                        mesh_path = str(rel_path)
+                        break
+                if not mesh_path:
+                    raise Exception("Could not find the mesh file")
+                mesh = load_mesh_file(mesh_path)
+                min_b, max_b = mesh_min_max_bounds(mesh)
+                # TODO Handle scale and rotation
+                min_bounds.append(min_b * scale)
+                max_bounds.append(max_b * scale)
+                continue
             elif c.tag == 'box':
                 size = c.find('size').text
                 size_x, size_y, size_z = tuple(map(lambda x: float(x)/2, size.split(' ')))
@@ -111,7 +144,8 @@ def to_camel_case(snake_str):
 
 def to_annotations(model_desc: t.Dict[str, t.Any], input_dir: str):
     typ = ModelTypes[model_desc['type']]
-    annotations = {'gz_name': model_desc['name'],
+    name = model_desc['name']
+    annotations = {'gz_name': name,
                    'type': typ,}
     if typ == ModelTypes.NO_MODEL:
         annotations.update({'width': model_desc['width'],
@@ -121,13 +155,20 @@ def to_annotations(model_desc: t.Dict[str, t.Any], input_dir: str):
         # TODO we need to read .sdf file from model_desc['path']
         # and figure out the size values and whether we can
         # modify the dynamically
-        length, width, height = process_sdf(os.path.join(input_dir, model_desc['path']))
+        length, width, height = process_sdf(input_dir, model_desc['path'])
         annotations.update({'length': length,
                             'width': width})
     elif typ == ModelTypes.GAZEBO_MODEL:
         # TODO we need to download files from gazebo repo
         # and do the same as CUSTOM_MODEL
-        pass
+        filepath = os.path.join('/tmp/', name)
+        if not os.path.exists(filepath):
+            url = f'https://github.com/osrf/gazebo_models/trunk/{name}'
+            #FIXME We should not use svn
+            os.system(f'svn export {url} {filepath}')
+        length, width, height = process_sdf(filepath, 'model.sdf')
+        annotations.update({'length': length,
+                            'width': width})
     return annotations
 
 
