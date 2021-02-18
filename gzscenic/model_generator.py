@@ -109,7 +109,7 @@ def to_camel_case(snake_str):
     return ''.join(x.title() for x in components)
 
 
-def to_annotations(model_desc):
+def to_annotations(model_desc: t.Dict[str, t.Any], input_dir: str):
     typ = ModelTypes[model_desc['type']]
     annotations = {'gz_name': model_desc['name'],
                    'type': typ,}
@@ -121,7 +121,9 @@ def to_annotations(model_desc):
         # TODO we need to read .sdf file from model_desc['path']
         # and figure out the size values and whether we can
         # modify the dynamically
-        pass
+        length, width, height = process_sdf(os.path.join(input_dir, model_desc['path']))
+        annotations.update({'length': length,
+                            'width': width})
     elif typ == ModelTypes.GAZEBO_MODEL:
         # TODO we need to download files from gazebo repo
         # and do the same as CUSTOM_MODEL
@@ -129,11 +131,11 @@ def to_annotations(model_desc):
     return annotations
 
 
-def generate_model(model_desc):
+def generate_model(model_desc: t.Dict[str, t.Any], input_dir: str):
     import gzscenic.model as base
     model_name = to_camel_case(model_desc['name'])
     print(model_name)
-    model = type(model_name, (base.BaseModel,), {'__module__': 'gzscenic.model', '__annotations__': to_annotations(model_desc)})
+    model = type(model_name, (base.BaseModel,), {'__module__': 'gzscenic.model', '__annotations__': to_annotations(model_desc, input_dir)})
     setattr(base, model_name, model)
     return model
 

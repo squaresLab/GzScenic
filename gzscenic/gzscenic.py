@@ -132,7 +132,7 @@ def main():
         with open(args.input, 'r') as f:
             input_objects = yaml.load(f)
         for obj in input_objects:
-            print(generate_model(obj))
+            print(generate_model(obj, os.path.dirname(args.input)))
 
     if args.load:
         if args.load.rpartition('.')[-1] not in ['sc', 'scenic']:
