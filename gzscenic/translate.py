@@ -38,7 +38,7 @@ def generate_include(obj: Object, model_name: str, name: str) -> ET.Element:
     uri = ET.Element('uri')
     uri.text = f'model://{model_name}'
     include.append(uri)
-    position_txt = " ".join([str(obj.position.x), str(obj.position.y), '-1',
+    position_txt = " ".join([str(obj.position.x), str(obj.position.y), str(obj.z),
                             '0', '-0', str(obj.heading)])
     pose_element = ET.Element('pose')
     pose_element.text = position_txt

@@ -165,6 +165,9 @@ def to_annotations(model_desc: t.Dict[str, t.Any], input_dir: str, models_dir: s
         length, width, height = process_sdf(dir_path, sdf_path)
         annotations.update({'length': length,
                             'width': width})
+
+    if 'z' in model_desc:
+        annotations['z'] = model_desc['z']
     return annotations
 
 
