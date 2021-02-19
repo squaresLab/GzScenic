@@ -6,14 +6,14 @@
         <geometry>
           <mesh>
             <uri>model://fire_hydrant/meshes/fire_hydrant.dae</uri>
-          <scale>0.879672451355415 0.879672451355415 1.6509628150310034</scale></mesh>
+          <scale>1.1302023611231913 1.1302023611231913 1.777203179662479</scale></mesh>
         </geometry>
       </collision>
       <visual name="visual">
         <geometry>
           <mesh>
             <uri>model://fire_hydrant/meshes/fire_hydrant.dae</uri>
-          <scale>0.879672451355415 0.879672451355415 1.6509628150310034</scale></mesh>
+          <scale>1.1302023611231913 1.1302023611231913 1.777203179662479</scale></mesh>
         </geometry>
       </visual>
     </link>

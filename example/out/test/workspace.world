@@ -43,5 +43,5 @@
         <view_controller>orbit</view_controller>
       </camera>
     </gui>
-  <include><uri>model://wooden_table</uri><pose>-1.732312262298773 -1.6651721434387814 -1 0 -0 5.184088420426096</pose><name>wooden_table1</name></include><include><uri>model://construction_cone2</uri><pose>1.3905601094352606 -0.4902540491446361 -1 0 -0 4.251302288477272</pose><name>construction_cone2</name></include><include><uri>model://fire_hydrant3</uri><pose>0.08476283505152837 1.3235792323433593 -1 0 -0 4.209254532484002</pose><name>fire_hydrant3</name></include><include><uri>model://box4</uri><pose>1.4729375154272546 0.32972553622844286 -1 0 -0 3.14</pose><name>box4</name></include></world>
+  <include><uri>model://wooden_table</uri><pose>-1.1680460348859039 1.4345046828937826 -1 0 -0 0.6168776846989963</pose><name>wooden_table1</name></include><include><uri>model://construction_cone</uri><pose>1.8318132227680604 1.0099373762903117 -1 0 -0 2.01426920936669</pose><name>construction_cone2</name></include><include><uri>model://fire_hydrant3</uri><pose>1.173590404440776 -4.3688250597385245 -1 0 -0 5.167897097532312</pose><name>fire_hydrant3</name></include><include><uri>model://box4</uri><pose>0.8292310179173213 -1.9856750411266901 -1 0 -0 1.57</pose><name>box4</name></include></world>
 </sdf>
