@@ -6,8 +6,8 @@ import sys
 from scenic.syntax.translator import ScenicLoader
 
 
-def load_module(scenif_file_path: str) -> None:
-        spec = importlib.util.spec_from_file_location('model', scenif_file_path, loader=ScenicLoader(os.path.abspath(scenif_file_path), os.path.basename(scenif_file_path)))
+def load_module(scenic_file_path: str) -> None:
+        spec = importlib.util.spec_from_file_location('model', scenic_file_path, loader=ScenicLoader(os.path.abspath(scenic_file_path), os.path.basename(scenic_file_path)))
         module = importlib.util.module_from_spec(spec)
         sys.modules['gzscenic.model'] = module
         spec.loader.exec_module(module)

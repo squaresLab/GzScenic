@@ -1,11 +1,5 @@
 from gzscenic.gazebo.model_types import ModelTypes
 
-# Set up workspace
-width = 5
-length = 10
-heading = 0
-workspace = Workspace(RectangularRegion(0 @ 0, heading, width, length))
-
 
 
 class BaseModel:
@@ -20,7 +14,7 @@ class BaseModel:
     z: 0.0
 
 
-class GreyWall(BasicObject):
+class Wall(BasicObject):
     """A simple wall"""
     heading: Range(0, 360) deg
     length: Range(0.01, workspace.region.length*2)
@@ -31,18 +25,23 @@ class GreyWall(BasicObject):
     dynamic_size: True
 
 
-
-def create_room(L, W, x=0, y=0, sides='NSWE'):
-    l2 = L/2-0.1
-    w2 = W/2-0.1
+def create_room(length, width, x=0, y=0, sides='NSWE'):
+    l2 = length/2-0.1
+    w2 = width/2-0.1
     if 'N' in sides:
-        GreyWall at x @ l2, facing (90 deg), with length 10
+        Wall at x @ l2, facing 90 deg, with length (width-0.1)
     if 'S' in sides:
-        GreyWall at x @ -l2, facing 90 deg, with length (width-0.1)
+        Wall at x @ -l2, facing 90 deg, with length (width-0.1)
     if 'E' in sides:
-        GreyWall at w2 @ y, facing 0 deg, with length (length-0.4)
+        Wall at w2 @ y, facing 0 deg, with length (length-0.4)
     if 'W' in sides:
-        GreyWall at -w2 @ y, facing 0 deg, with length (length-0.4)
+        Wall at -w2 @ y, facing 0 deg, with length (length-0.4)
 
+
+# Set up workspace
+width = 5
+length = 10
+heading = 0
+workspace = Workspace(RectangularRegion(0 @ 0, heading, width, length))
 
 
