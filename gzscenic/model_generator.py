@@ -208,6 +208,8 @@ def to_annotations(model_desc: t.Dict[str, t.Any], input_dir: str, models_dir: s
 
     if 'z' in model_desc:
         annotations['z'] = model_desc['z']
+    if 'heading' in model_desc:
+        annotations['heading'] = model_desc['heading']
     return annotations
 
 
