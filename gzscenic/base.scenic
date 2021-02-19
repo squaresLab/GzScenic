@@ -19,3 +19,30 @@ class BaseModel:
     heading: Range(0, 360) deg
     z: 0.0
 
+
+class GreyWall(BasicObject):
+    """A simple wall"""
+    heading: Range(0, 360) deg
+    length: Range(0.01, workspace.region.length*2)
+    width: 0.1
+    height: 1.0
+    gz_name: 'grey_wall'
+    type: ModelTypes.GAZEBO_MODEL
+    dynamic_size: True
+
+
+
+def create_room(L, W, x=0, y=0, sides='NSWE'):
+    l2 = L/2-0.1
+    w2 = W/2-0.1
+    if 'N' in sides:
+        GreyWall at x @ l2, facing (90 deg), with length 10
+    if 'S' in sides:
+        GreyWall at x @ -l2, facing 90 deg, with length (width-0.1)
+    if 'E' in sides:
+        GreyWall at w2 @ y, facing 0 deg, with length (length-0.4)
+    if 'W' in sides:
+        GreyWall at -w2 @ y, facing 0 deg, with length (length-0.4)
+
+
+
