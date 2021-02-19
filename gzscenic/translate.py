@@ -80,11 +80,27 @@ def process_object(obj: Object,
     if obj.dynamic_size:
         model_et = ET.parse(filepath)
         model = model_et.getroot()
-        # TODO: assuming it's always a single box
-        size_text = f'{obj.width} {obj.length} {obj.height}'
-        for s in model.findall('.//geometry/box/size'):
-            s.text = size_text
-        # end of TODO
+#        size_text = f'{obj.width} {obj.length} {obj.height}'
+        for c in model.findall('.//geometry/*'):
+            if c.tag == 'mesh':
+                print(f'orig: {obj.o_length} {obj.o_width}')
+                print(f'now: {obj.length} {obj.width}')
+                scale = ' '.join([str(obj.width/obj.o_width),
+                                  str(obj.length/obj.o_length),
+                                  str(obj.height/obj.o_height)])
+                scale_node = c.find('scale')
+                if scale_node is None:
+                    scale_node = ET.Element('scale')
+                    c.append(scale_node)
+
+                scale_node.text = scale
+            elif c.tag == 'box':
+                size = c.find('size')
+                size.text = f'{obj.width} {obj.length} {obj.height}'
+            elif c.tag in ['cylinder', 'sphere']:
+                radius = c.find('radius')
+                radius.text = str(obj.length/2)
+
         model.find('./model').set('name', model_name)
         _, tf = mkstemp(dir='/tmp/', suffix='.sdf')
         model_et.write(tf)

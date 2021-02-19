@@ -18,11 +18,12 @@ from scenic.core.specifiers import PropertyDefault
 
 @attr.s
 class ModelInfo:
-    length: float = attr.ib()
     width: float = attr.ib()
+    length: float = attr.ib()
     height: float = attr.ib()
     dynamic_size: bool = attr.ib()
     eq_width_length: bool = attr.ib(default=False)
+    orig_scale: t.Tuple[float, float, float] = attr.ib(default=(1, 1, 1))
 
 
 def Rx(theta):
@@ -88,6 +89,7 @@ def process_sdf(input_dir: str, sdf_file_path: str) -> ModelInfo:
     max_bounds = []
 
     eq_width_length = False
+    orig_scale = (1, 1, 1)
     sdf = ET.parse(os.path.join(input_dir, sdf_file_path))
     for collision in sdf.findall('.//collision'):
         pose = collision.find('pose')
@@ -107,9 +109,9 @@ def process_sdf(input_dir: str, sdf_file_path: str) -> ModelInfo:
                     uri = uri[len('model://'):]
                 scale = c.find('scale')
                 if scale is not None:
-                    scale = list(map(float, scale.text.split(' ')))
+                    scale = tuple(map(float, scale.text.split(' ')))
                 else:
-                    scale = [1, 1, 1]
+                    scale = (1, 1, 1)
                 path = pathlib.Path(uri)
                 mesh_path = ''
                 for i in range(len(path.parts)):
@@ -125,6 +127,7 @@ def process_sdf(input_dir: str, sdf_file_path: str) -> ModelInfo:
                 min_bounds.append(min_b * scale)
                 max_bounds.append(max_b * scale)
                 eq_width_length = True
+                orig_scale = scale
                 continue
             elif c.tag == 'box':
                 size = c.find('size').text
@@ -158,7 +161,8 @@ def process_sdf(input_dir: str, sdf_file_path: str) -> ModelInfo:
                      measures[1],
                      measures[2],
                      len(max_bounds) == 1,
-                     eq_width_length)
+                     eq_width_length,
+                     orig_scale)
 
 
 def to_camel_case(snake_str):
@@ -196,9 +200,9 @@ def to_annotations(model_desc: t.Dict[str, t.Any], input_dir: str, models_dir: s
                                 'width': Range(info.width/2, info.width*2),
                                 'height': Range(info.height/2, info.height*2),
                                 'dynamic_size': info.dynamic_size,
-                                'o_length': info.length,
-                                'o_width': info.width,
-                                'o_height': info.height})
+                                'o_length': info.length/info.orig_scale[1],
+                                'o_width': info.width/info.orig_scale[0],
+                                'o_height': info.height/info.orig_scale[2]})
             if info.eq_width_length:
                 annotations['width'] = PropertyDefault(('length',), {}, lambda self: self.length)
 
