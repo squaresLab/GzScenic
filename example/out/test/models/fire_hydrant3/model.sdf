@@ -1,0 +1,21 @@
+<sdf version="1.5">
+  <model name="fire_hydrant3">
+    <static>true</static>
+    <link name="link">
+      <collision name="collision">
+        <geometry>
+          <mesh>
+            <uri>model://fire_hydrant/meshes/fire_hydrant.dae</uri>
+          <scale>0.879672451355415 0.879672451355415 1.6509628150310034</scale></mesh>
+        </geometry>
+      </collision>
+      <visual name="visual">
+        <geometry>
+          <mesh>
+            <uri>model://fire_hydrant/meshes/fire_hydrant.dae</uri>
+          <scale>0.879672451355415 0.879672451355415 1.6509628150310034</scale></mesh>
+        </geometry>
+      </visual>
+    </link>
+  </model>
+</sdf>

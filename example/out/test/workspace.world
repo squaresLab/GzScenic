@@ -1,0 +1,47 @@
+<sdf version="1.4">
+  <world name="default">
+    
+    <include>
+      <uri>model://sun</uri>
+    </include>
+
+    
+    <include>
+      <uri>model://ground_plane</uri>
+    </include>
+
+    <physics type="ode">
+      <real_time_update_rate>1000.0</real_time_update_rate>
+      <max_step_size>0.001</max_step_size>
+      <real_time_factor>1</real_time_factor>
+      <ode>
+        <solver>
+          <type>quick</type>
+          <iters>150</iters>
+          <precon_iters>0</precon_iters>
+          <sor>1.400000</sor>
+          <use_dynamic_moi_rescaling>1</use_dynamic_moi_rescaling>
+        </solver>
+        <constraints>
+          <cfm>0.00001</cfm>
+          <erp>0.2</erp>
+          <contact_max_correcting_vel>2000.000000</contact_max_correcting_vel>
+          <contact_surface_layer>0.01000</contact_surface_layer>
+        </constraints>
+      </ode>
+    </physics>
+
+    <scene>
+      <ambient>0.4 0.4 0.4 1</ambient>
+      <background>0.7 0.7 0.7 1</background>
+      <shadows>true</shadows>
+      </scene>
+
+    <gui fullscreen="0">
+      <camera name="user_camera">
+        <pose>0.0 0.0 17.0 0 1.5708 0</pose>
+        <view_controller>orbit</view_controller>
+      </camera>
+    </gui>
+  <include><uri>model://wooden_table</uri><pose>-1.732312262298773 -1.6651721434387814 -1 0 -0 5.184088420426096</pose><name>wooden_table1</name></include><include><uri>model://construction_cone2</uri><pose>1.3905601094352606 -0.4902540491446361 -1 0 -0 4.251302288477272</pose><name>construction_cone2</name></include><include><uri>model://fire_hydrant3</uri><pose>0.08476283505152837 1.3235792323433593 -1 0 -0 4.209254532484002</pose><name>fire_hydrant3</name></include><include><uri>model://box4</uri><pose>1.4729375154272546 0.32972553622844286 -1 0 -0 3.14</pose><name>box4</name></include></world>
+</sdf>

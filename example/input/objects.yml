@@ -1,0 +1,25 @@
+world: workspace.world
+models_dir: models/
+models:
+  - name: turtlebot3
+    type: NO_MODEL
+    width: 0.14
+    length: 0.14
+    heading: 3.14
+  - name: waypoint
+    type: NO_MODEL
+    width: 0.14
+    length: 0.14
+  - name: wooden_table
+    type: CUSTOM_MODEL
+    #url: ////
+    z: -1
+  - name: construction_cone
+    type: GAZEBO_MODEL
+    z: -1
+  - name: fire_hydrant
+    type: GAZEBO_MODEL
+    z: -1
+  - name: box
+    type: CUSTOM_MODEL
+    z: -1
