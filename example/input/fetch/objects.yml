@@ -1,0 +1,22 @@
+world: workspace.world
+models_dir: models/
+models:
+  - name: fetch
+    type: NO_MODEL
+    width: 0.14
+    length: 0.14
+    heading: 1.57
+  - name: waypoint
+    type: NO_MODEL
+    width: 0.14
+    length: 0.14
+  - name: cafe_table
+    type: GAZEBO_MODEL
+  - name: bookshelf
+    type: GAZEBO_MODEL
+    dynamic_size: False
+  - name: LampAndStand
+    type: CUSTOM_MODEL
+    dynamic_size: False
+  - name: demo_cube
+    type: CUSTOM_MODEL
