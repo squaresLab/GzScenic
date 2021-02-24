@@ -105,6 +105,7 @@ def process_sdf(input_dir: str, sdf_file_path: str) -> ModelInfo:
     min_bounds = []
     max_bounds = []
 
+    dynamic_size = True
     eq_width_length = False
     orig_scale = (1, 1, 1)
     sdf = ET.parse(os.path.join(input_dir, sdf_file_path))
@@ -121,6 +122,7 @@ def process_sdf(input_dir: str, sdf_file_path: str) -> ModelInfo:
             elif c.tag in ['heightmap', 'image', 'plane', 'polyline']:
                 raise Exception(f'geometry {c.tag} is not supported yet')
             elif c.tag == 'mesh':
+                dynamic_size = False
                 uri = c.find('uri').text
                 if uri.startswith('model://'):
                     uri = uri[len('model://'):]
@@ -187,7 +189,7 @@ def process_sdf(input_dir: str, sdf_file_path: str) -> ModelInfo:
     return ModelInfo(measures[0],
                      measures[1],
                      measures[2],
-                     len(max_bounds) == 1,
+                     dynamic_size and len(max_bounds) == 1,
                      eq_width_length,
                      orig_scale)
 
