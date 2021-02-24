@@ -12,6 +12,7 @@ models:
     length: 0.14
   - name: cafe_table
     type: GAZEBO_MODEL
+    allow_collisions: True
   - name: bookshelf
     type: GAZEBO_MODEL
     dynamic_size: False
@@ -20,3 +21,5 @@ models:
     dynamic_size: False
   - name: demo_cube
     type: CUSTOM_MODEL
+    dynamic_size: False
+    allow_collisions: True

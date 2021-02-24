@@ -13,6 +13,9 @@ ego = Fetch at 0 @ 0
 
 table = CafeTable offset by 0 @ -1, facing 0 deg
 
+cube = DemoCube at table.position
+cube.z = table.height + cube.height +  0.01
+
 create_room(3, 2.5, x=-2, y=2, sides='NSE')
 CafeTable at -2 @ 2
 
