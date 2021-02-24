@@ -20,6 +20,7 @@ class GreyWall(BaseModel):
     length: Range(0.01, workspace.region.length*2)
     width: 0.1
     height: 1.0
+    z: -1
     gz_name: 'grey_wall'
     type: ModelTypes.GAZEBO_MODEL
     dynamic_size: True
@@ -29,13 +30,13 @@ def create_room(length, width, x=0, y=0, sides='NSWE'):
     l2 = length/2-0.1
     w2 = width/2-0.1
     if 'N' in sides:
-        GreyWall at x @ l2, facing 90 deg, with length (width-0.1)
+        GreyWall at x @ (l2+y), facing 90 deg, with length (width-0.1)
     if 'S' in sides:
-        GreyWall at x @ -l2, facing 90 deg, with length (width-0.1)
+        GreyWall at x @ (-l2+y), facing 90 deg, with length (width-0.1)
     if 'E' in sides:
-        GreyWall at w2 @ y, facing 0 deg, with length (length-0.4)
+        GreyWall at (w2+x) @ y, facing 0 deg, with length (length-0.4)
     if 'W' in sides:
-        GreyWall at -w2 @ y, facing 0 deg, with length (length-0.4)
+        GreyWall at (-w2+x) @ y, facing 0 deg, with length (length-0.4)
 
 
 # Set up workspace

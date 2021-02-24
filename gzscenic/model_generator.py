@@ -3,6 +3,7 @@ import importlib
 import sys
 import os
 import collada
+import pywavefront
 import numpy as np
 import itertools
 import xml.etree.ElementTree as ET
@@ -48,11 +49,11 @@ def rotation_matrix(roll, pitch, yaw):
     return Rx(roll) * Ry(pitch) * Rz(yaw)
 
 
-def load_mesh_file(mesh_file_path: str):
+def load_collada_mesh_file(mesh_file_path: str):
     return collada.Collada(mesh_file_path)
 
 
-def mesh_min_max_bounds(mesh: collada.Collada) -> t.Tuple[np.array, np.array]:
+def mesh_min_max_bounds_collada(mesh: collada.Collada) -> t.Tuple[np.array, np.array]:
     # Find the extrema of each components
     min_bounds = []
     max_bounds = []
@@ -67,6 +68,22 @@ def mesh_min_max_bounds(mesh: collada.Collada) -> t.Tuple[np.array, np.array]:
             v = primitive.vertex
             min_bounds.append(v.min(axis=0))
             max_bounds.append(v.max(axis=0))
+
+    return np.array(min_bounds) * unit, np.array(max_bounds) * unit
+
+
+def load_obj_mesh_file(mesh_file_path: str):
+    return pywavefront.Wavefront(mesh_file_path)
+
+
+def mesh_min_max_bounds_obj(mesh: pywavefront.Wavefront) -> t.Tuple[np.array, np.array]:
+    # Find the extrema of each components
+
+    unit = 1
+
+    vertices = np.array(mesh.vertices)
+    min_bounds = [vertices.min(axis=0)]
+    max_bounds = [vertices.max(axis=0)]
 
     return np.array(min_bounds) * unit, np.array(max_bounds) * unit
 
@@ -121,8 +138,17 @@ def process_sdf(input_dir: str, sdf_file_path: str) -> ModelInfo:
                         break
                 if not mesh_path:
                     raise Exception("Could not find the mesh file")
-                mesh = load_mesh_file(mesh_path)
-                min_b, max_b = mesh_min_max_bounds(mesh)
+                extension = os.path.splitext(mesh_path)[1]
+
+                if extension == '.dae':
+                    # Collada format
+                    mesh = load_collada_mesh_file(mesh_path)
+                    min_b, max_b = mesh_min_max_bounds_collada(mesh)
+                elif extension == '.obj' or extension == '.OBJ':
+                    mesh = load_obj_mesh_file(mesh_path)
+                    min_b, max_b = mesh_min_max_bounds_obj(mesh)
+                else:
+                    raise Exception(f'Unsupported mesh format {extension}')
                 # TODO Handle scale and rotation
                 min_bounds.append(min_b * scale)
                 max_bounds.append(max_b * scale)
@@ -154,6 +180,7 @@ def process_sdf(input_dir: str, sdf_file_path: str) -> ModelInfo:
             min_bounds.append(vertices.min(axis=0))
             max_bounds.append(vertices.max(axis=0))
             break
+
 
     measures = (np.max(max_bounds, axis=0) - np.min(min_bounds, axis=0))[0]
     print(measures)
@@ -191,7 +218,7 @@ def to_annotations(model_desc: t.Dict[str, t.Any], input_dir: str, models_dir: s
     if typ != ModelTypes.NO_MODEL:
         sdf_path = handle_path(dir_path, url)
         info = process_sdf(dir_path, sdf_path)
-        if not info.dynamic_size:
+        if not model_desc.get('dynamic_size', info.dynamic_size):
             annotations.update({'length': info.length,
                                 'width': info.width,
                                 'height': info.height})
