@@ -17,7 +17,7 @@ models:
     type: GAZEBO_MODEL
     dynamic_size: False
   - name: LampAndStand
-    type: CUSTOM_MODEL
+    type: GAZEBO_MODEL
     dynamic_size: False
   - name: demo_cube
     type: CUSTOM_MODEL

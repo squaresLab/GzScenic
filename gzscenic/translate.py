@@ -69,9 +69,10 @@ def process_object(obj: Object,
         filedir = os.path.join(models_dir, obj.gz_name)
         path = handle_path(filedir)
         filepath = os.path.join(filedir, path)
-    elif obj.type == ModelTypes.GAZEBO_MODEL and obj.dynamic_size:
-        filedir, url = gazebo_dir_and_path(models_dir, obj.gz_name)
-        path = handle_path(filedir, url)
+    elif (obj.type == ModelTypes.GAZEBO_DB_MODEL and obj.dynamic_size) \
+        or obj.type == ModelTypes.GAZEBO_MODEL:
+        filedir, _ = gazebo_dir_and_path(models_dir, obj.gz_name)
+        path = handle_path(filedir)
         filepath = os.path.join(filedir, path)
     else:
         filedir = ''

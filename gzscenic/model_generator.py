@@ -212,10 +212,12 @@ def to_annotations(model_desc: t.Dict[str, t.Any], input_dir: str, models_dir: s
         dir_path = os.path.join(input_dir, models_dir)
         dir_path = os.path.join(dir_path, name)
         url = model_desc.get('url', '')
-    elif typ == ModelTypes.GAZEBO_MODEL:
+    elif typ in [ModelTypes.GAZEBO_MODEL, ModelTypes.GAZEBO_DB_MODEL]:
         # TODO we need to download files from gazebo repo
         # and do the same as CUSTOM_MODEL
-        dir_path, url = gazebo_dir_and_path(os.path.join(input_dir, models_dir), name)
+        dir_path, gazebo_db = gazebo_dir_and_path(os.path.join(input_dir, models_dir), name)
+        annotations['type'] = ModelTypes.GAZEBO_DB_MODEL if gazebo_db else ModelTypes.GAZEBO_MODEL
+        url = ''
     
     if typ != ModelTypes.NO_MODEL:
         sdf_path = handle_path(dir_path, url)
