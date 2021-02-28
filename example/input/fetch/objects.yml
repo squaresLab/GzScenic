@@ -11,15 +11,11 @@ models:
     allow_collisions: True
   - name: bookshelf
     type: GAZEBO_MODEL
-    dynamic_size: False
   - name: LampAndStand
     type: GAZEBO_MODEL
-    dynamic_size: False
   - name: demo_cube
     type: CUSTOM_MODEL
     dynamic_size: False
     allow_collisions: True
   - name: waypoint
     type: MISSION_ONLY
-    length: 0.00001
-    width: 0.000001

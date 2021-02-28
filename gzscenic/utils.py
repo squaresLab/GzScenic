@@ -83,3 +83,14 @@ def handle_path(dir_path: str, url: t.Optional[str] = '') -> str:
                 else:
                     return f
     raise Exception("No models.sdf in the directory")
+
+
+def scenic_model_to_str(model_name: str, annotations: t.Dict[str, t.Any]) -> str:
+
+    s = f'class {model_name}(BaseModel):\n'
+    for k, v in annotations.items():
+        if type(v) == str:
+            s += f'    {k}: "{v}"\n'
+        else:
+            s += f'    {k}: {str(v)}\n'
+    return s

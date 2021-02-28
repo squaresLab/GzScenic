@@ -38,6 +38,7 @@ def setup_arg_parser():
     mainOptions = parser.add_argument_group('main options')
     mainOptions.add_argument('-s', '--seed', help='random seed', type=int)
     mainOptions.add_argument('--load', help='load a scenic file', type=str, default='')
+    mainOptions.add_argument('--dump', help='dump the scenic file', type=str, default='')
     mainOptions.add_argument('--verbose', help='verbose logging',
                              action='store_true')
     mainOptions.add_argument('--noplt', action='store_true',
@@ -127,8 +128,11 @@ def main():
 
     if not args.load:
         load_module('gzscenic/base.scenic')
+        if args.dump:
+            with open(args.dump, 'w') as f:
+                f.write('from gzscenic.base import *\n\n')
         for obj in input_objects['models']:
-            print(generate_model(obj, input_dir, models_dir))
+            print(generate_model(obj, input_dir, models_dir, args.dump))
     else:
         if args.load.rpartition('.')[-1] not in ['sc', 'scenic']:
             raise Exception('The file to be loaded needs to be .sc or .scenic')

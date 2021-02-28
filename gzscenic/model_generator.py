@@ -12,7 +12,7 @@ import pathlib
 import attr
 
 from .gazebo.model_types import ModelTypes
-from .utils import handle_path, gazebo_dir_and_path
+from .utils import handle_path, gazebo_dir_and_path, scenic_model_to_str
 from scenic.core.distributions import Range
 from scenic.core.specifiers import PropertyDefault
 
@@ -247,11 +247,19 @@ def to_annotations(model_desc: t.Dict[str, t.Any], input_dir: str, models_dir: s
     return annotations
 
 
-def generate_model(model_desc: t.Dict[str, t.Any], input_dir: str, models_dir: t.Optional[str] = ''):
+def generate_model(model_desc: t.Dict[str, t.Any],
+                   input_dir: str,
+                   models_dir: t.Optional[str] = '',
+                   dump_models_path: t.Optional[str] = ''):
     import gzscenic.model as base
     model_name = to_camel_case(model_desc['name'])
     print(model_name)
-    model = type(model_name, (base.BaseModel,), {'__module__': 'gzscenic.model', '__annotations__': to_annotations(model_desc, input_dir, models_dir)})
+    annotations = to_annotations(model_desc, input_dir, models_dir)
+    model = type(model_name, (base.BaseModel,), {'__module__': 'gzscenic.model', '__annotations__': annotations})
+    if dump_models_path:
+        model_str = scenic_model_to_str(model_name, annotations)
+        with open(dump_models_path, 'a') as f:
+            f.write(model_str)
     setattr(base, model_name, model)
     return model
 
