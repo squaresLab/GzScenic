@@ -6,11 +6,11 @@ from setuptools import setup, find_packages
 setup(
     name='gzscenic',
     version='0.1dev',
-    description='TBA',
+    description='Automatic scene generation for Gazebo',
     author='Afsoon Afzal',
     author_email='afsoona@cs.cmu.edu',
-    url='https://github.com/squaresLab/scenic-gazebo',
-    license='mit',
+    url='https://github.com/squaresLab/GzScenic',
+    license='BSD-3-Clause',
     python_requires='>=3.8',
     include_package_data=True,
     install_requires = [
