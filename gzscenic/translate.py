@@ -55,7 +55,7 @@ def process_object(obj: Object,
                    input_dir: str,
                    models_dir: str,
                    ) -> ObjectInfo:
-    if obj.type == ModelTypes.NO_MODEL:
+    if obj.type == ModelTypes.MISSION_ONLY:
         return None
     name = obj.gz_name + str(index)
     if not obj.dynamic_size:
@@ -125,7 +125,7 @@ def scene_to_sdf(scene: Scene,
     ws_root = workspace.getroot().find('world')
     model_files = {}
     for i, obj in enumerate(scene.objects):
-        if obj.type == ModelTypes.NO_MODEL:
+        if obj.type == ModelTypes.MISSION_ONLY:
             pose = {'x': obj.position.x,
                     'y': obj.position.y,
                     'z': obj.z,

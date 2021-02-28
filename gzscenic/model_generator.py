@@ -60,7 +60,7 @@ def mesh_min_max_bounds_collada(mesh: collada.Collada) -> t.Tuple[np.array, np.a
 
     unit = 1
 
-    if mesh.assetInfo:
+    if mesh.assetInfo and mesh.assetInfo.unitmeter:
         unit = float(mesh.assetInfo.unitmeter)
 
     for geometry in mesh.scene.objects('geometry'):
@@ -204,9 +204,9 @@ def to_annotations(model_desc: t.Dict[str, t.Any], input_dir: str, models_dir: s
     name = model_desc['name']
     annotations = {'gz_name': name,
                    'type': typ,}
-    if typ == ModelTypes.NO_MODEL:
-        annotations.update({'width': model_desc['width'],
-                            'length': model_desc['length']})
+    if typ == ModelTypes.MISSION_ONLY:
+        annotations.update({'width': model_desc.get('width', 0.00001),
+                            'length': model_desc.get('length', 0.00001)})
 
     elif typ == ModelTypes.CUSTOM_MODEL:
         dir_path = os.path.join(input_dir, models_dir)
@@ -219,7 +219,7 @@ def to_annotations(model_desc: t.Dict[str, t.Any], input_dir: str, models_dir: s
         annotations['type'] = ModelTypes.GAZEBO_DB_MODEL if gazebo_db else ModelTypes.GAZEBO_MODEL
         url = ''
     
-    if typ != ModelTypes.NO_MODEL:
+    if typ != ModelTypes.MISSION_ONLY:
         sdf_path = handle_path(dir_path, url)
         info = process_sdf(dir_path, sdf_path)
         if not model_desc.get('dynamic_size', info.dynamic_size):

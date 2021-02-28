@@ -2,14 +2,10 @@ world: workspace.world
 models_dir: models/
 models:
   - name: fetch
-    type: NO_MODEL
-    width: 0.14
-    length: 0.14
-    heading: 1.57
-  - name: waypoint
-    type: NO_MODEL
-    width: 0.14
-    length: 0.14
+    type: MISSION_ONLY
+    width: 0.57
+    length: 0.53
+    heading: -1.57
   - name: cafe_table
     type: GAZEBO_MODEL
     allow_collisions: True
@@ -23,3 +19,7 @@ models:
     type: CUSTOM_MODEL
     dynamic_size: False
     allow_collisions: True
+  - name: waypoint
+    type: MISSION_ONLY
+    length: 0.00001
+    width: 0.000001

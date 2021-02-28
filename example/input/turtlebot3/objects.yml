@@ -2,12 +2,12 @@ world: workspace.world
 models_dir: models/
 models:
   - name: turtlebot3
-    type: NO_MODEL
+    type: MISSION_ONLY
     width: 0.14
     length: 0.14
     heading: 1.57
   - name: waypoint
-    type: NO_MODEL
+    type: MISSION_ONLY
     width: 0.14
     length: 0.14
   - name: wooden_table

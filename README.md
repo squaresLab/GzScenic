@@ -52,7 +52,7 @@ world: <path to an empty gazebo world file>
 models_dir: <path to a directory holding custom models (default: same directory as where this input file is stored)>
 models:
   - name: <name of the model>
-    type: <type of the model: NO_MODEL, CUSTOM_MODEL, GAZEBO_MODEL>
+    type: <type of the model: MISSION_ONLY, CUSTOM_MODEL, GAZEBO_MODEL>
   - name: <..>
     type: <..>
 ```

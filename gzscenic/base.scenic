@@ -3,7 +3,7 @@ from gzscenic.gazebo.model_types import ModelTypes
 
 
 class BaseModel:
-    type: ModelTypes.NO_MODEL
+    type: ModelTypes.MISSION_ONLY
     dynamic_size: False
     width: 0.0
     length: 0.0
