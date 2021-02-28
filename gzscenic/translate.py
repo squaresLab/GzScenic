@@ -23,7 +23,7 @@ logger = logging.getLogger(__name__)
 logger.setLevel(logging.DEBUG)
 
 CONFIG_PATH = os.path.join(os.path.dirname(__file__), 'gazebo/model.config')
-
+DEFAULT_WORLD = os.path.join(os.path.dirname(__file__), 'gazebo/empty_world.world')
 
 @attr.s
 class ObjectInfo:
@@ -121,7 +121,11 @@ def scene_to_sdf(scene: Scene,
 
 
     no_models = {}
-    workspace = ET.parse(os.path.join(input_dir, empty_world))
+
+    if empty_world:
+        workspace = ET.parse(os.path.join(input_dir, empty_world))
+    else:
+        workspace = ET.parse(DEFAULT_WORLD)
     ws_root = workspace.getroot().find('world')
     model_files = {}
     for i, obj in enumerate(scene.objects):

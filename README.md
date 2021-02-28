@@ -48,7 +48,7 @@ information about the used models and the initial world environment.
 
 The YAML file should have the following format:
 ```
-world: <path to an empty gazebo world file>
+world: <path to an empty gazebo world file (default: the GzScenic empty world)>
 models_dir: <path to a directory holding custom models (default: same directory as where this input file is stored)>
 models:
   - name: <name of the model>
@@ -73,12 +73,12 @@ will look for a directory with the same name as this model in the `models_dir`. 
 directory should include a `model.sdf` file that describes this custom model, and all
 necessary mesh files if the exist. In the later case, GzScenic will download the
 model from the `url` specified in the YAML file.
-3. NO\_MODEL: these models describe objects that are described in the scenario, but
+3. MISSION\_ONLY: these models describe objects that are described in the scenario, but
 should not be included in the final worl model. For example, using the scenario
 you can specify waypoints that are of interest to you. However, waypoints cannot
 be described in the world model. Instead, GzScenic outputs a list of
 the position and heading information of the objects with no models. Since GzScenic
-cannot automatically learn information about the size of these NO\_MODEL object,
+cannot automatically learn information about the size of these MISSION\_ONLY object,
 it expects `length` and `width` of the model to be provided in the YAML file.
 
 There are a number of optional information you can provide for each model:
