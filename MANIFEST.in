@@ -1,3 +1,3 @@
-include gzscenic/gazebo/model.scenic
+include gzscenic/base.scenic
 include gzscenic/gazebo/model.config
-include gzscenic/gazebo/models/*
+include gzscenic/gazebo/empty_world.world

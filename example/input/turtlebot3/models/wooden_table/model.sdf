@@ -1,6 +1,6 @@
 <?xml version='1.0'?>
 <sdf version='1.6'>
-  <model name='table'>
+  <model name='wooden_table'>
     <static>0</static>
     <link name='link'>
       <collision name='surface'>

@@ -1,0 +1,21 @@
+world: workspace.world
+models_dir: models/
+models:
+  - name: fetch
+    type: MISSION_ONLY
+    width: 0.57
+    length: 0.53
+    heading: -1.57
+  - name: cafe_table
+    type: GAZEBO_MODEL
+    allow_collisions: True
+  - name: bookshelf
+    type: GAZEBO_MODEL
+  - name: LampAndStand
+    type: GAZEBO_MODEL
+  - name: demo_cube
+    type: CUSTOM_MODEL
+    dynamic_size: False
+    allow_collisions: True
+  - name: waypoint
+    type: MISSION_ONLY

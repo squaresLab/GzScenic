@@ -21,7 +21,10 @@ setup(
         'ruamel.yaml==0.15.89',
         'matplotlib==3.3.2',
         'psutil==5.6.7',
-        'wget==3.2'
+        'wget==3.2',
+        'pycollada==0.7.1',
+        'pywavefront==1.3.3',
+        'numpy==1.19.4'
     ],
     packages = find_packages(),
     entry_points = {
