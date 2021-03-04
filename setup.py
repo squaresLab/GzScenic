@@ -24,7 +24,8 @@ setup(
         'wget==3.2',
         'pycollada==0.7.1',
         'pywavefront==1.3.3',
-        'numpy==1.19.4'
+        'numpy==1.19.4',
+        'scenic==2.0.0'
     ],
     packages = find_packages(),
     entry_points = {

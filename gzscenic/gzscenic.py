@@ -150,10 +150,10 @@ def main():
     totalTime = time.time() - startTime
     logger.info(f'Scenario constructed in {totalTime:.2f} seconds.')
     
-    if args.noplt:
+    if not args.noplt:
         import matplotlib.pyplot as plt
     success_count = 0
-    while not args.scenes_num or success_count <= args.scenes_num:
+    while not args.scenes_num or success_count < args.scenes_num:
         scene, _ = generateScene(scenario, args)
         if not args.noplt:
             if delay is None:
@@ -164,4 +164,5 @@ def main():
                 plt.clf()
 
         scene_to_sdf(scene, input_dir, input_objects['world'], models_dir, args.outputPath)
+        success_count += 1
 
