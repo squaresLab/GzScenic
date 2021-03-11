@@ -16,7 +16,7 @@ setup(
     install_requires = [
         'pytest==4.4.0',
         'pexpect==4.6.0',
-        'attrs==20.1.0',
+        'attrs>=19.3.0',
         'pyyaml==5.1',
         'ruamel.yaml==0.15.89',
         'matplotlib==3.3.2',
@@ -25,7 +25,8 @@ setup(
         'pycollada==0.7.1',
         'pywavefront==1.3.3',
         'numpy==1.19.4',
-        'scenic==2.0.0'
+        'scenic==2.0.0',
+        'requests>=2.25.1'
     ],
     packages = find_packages(),
     entry_points = {
