@@ -18,6 +18,7 @@ from scenic.core.simulators import SimulationCreationError
 from .translate import scene_to_sdf
 from .model_generator import generate_model
 from .utils import load_module
+from .complexity import scene_complexity
 
 
 logger = logging.getLogger(__name__)
@@ -50,6 +51,8 @@ def setup_arg_parser():
     mainOptions.add_argument('-m', '--model', help='specify a Scenic world model', default=None)
     mainOptions.add_argument('--scenario', default=None,
                              help='name of scenario to run (if file contains multiple)')
+    mainOptions.add_argument('--complexity', action='store_true',
+                             help='calculate the complexity of the generated scene')
     
     # Interactive rendering options
     intOptions = parser.add_argument_group('static scene diagramming options')
@@ -155,6 +158,11 @@ def main():
     success_count = 0
     while not args.scenes_num or success_count < args.scenes_num:
         scene, _ = generateScene(scenario, args)
+
+        if args.complexity:
+            c = scene_complexity(scene)
+            print("COMPLEXITY: %f" % c)
+
         if not args.noplt:
             if delay is None:
                 scene.show(zoom=args.zoom)
