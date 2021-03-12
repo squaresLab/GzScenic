@@ -10,6 +10,7 @@ import xml.etree.ElementTree as ET
 import math as m
 import pathlib
 import attr
+import re
 
 from .gazebo.model_types import ModelTypes
 from .utils import handle_path, gazebo_dir_and_path, scenic_model_to_str
@@ -25,6 +26,7 @@ class ModelInfo:
     dynamic_size: bool = attr.ib()
     eq_width_length: bool = attr.ib(default=False)
     orig_scale: t.Tuple[float, float, float] = attr.ib(default=(1, 1, 1))
+    complexity: int = attr.ib(default=0)
 
 
 def Rx(theta):
@@ -105,6 +107,7 @@ def process_sdf(input_dir: str, sdf_file_path: str) -> ModelInfo:
     min_bounds = []
     max_bounds = []
 
+    complexity = 0
     dynamic_size = True
     eq_width_length = False
     orig_scale = (1, 1, 1)
@@ -156,13 +159,18 @@ def process_sdf(input_dir: str, sdf_file_path: str) -> ModelInfo:
                 max_bounds.append(max_b * scale)
                 eq_width_length = True
                 orig_scale = scale
+                complexity = 3
                 continue
             elif c.tag == 'box':
+                if complexity < 2:
+                    complexity += 1
                 size = c.find('size').text
                 size_x, size_y, size_z = tuple(map(lambda x: float(x)/2, size.split(' ')))
                 vertices = np.array([[-size_x, -size_y, -size_z],
                                      [-size_x, -size_y, size_z]])
             elif c.tag == 'cylinder' or c.tag == 'sphere':
+                if complexity < 2:
+                    complexity += 1
                 eq_width_length = True
                 radius = float(c.find('radius').text)
                 if c.tag == 'cylinder':
@@ -191,11 +199,12 @@ def process_sdf(input_dir: str, sdf_file_path: str) -> ModelInfo:
                      measures[2],
                      dynamic_size and len(max_bounds) == 1,
                      eq_width_length,
-                     orig_scale)
+                     orig_scale,
+                     complexity)
 
 
 def to_camel_case(snake_str):
-    components = snake_str.split('_')
+    components = re.split(' |_', snake_str)
     return ''.join(x.title() for x in components)
 
 
@@ -203,7 +212,8 @@ def to_annotations(model_desc: t.Dict[str, t.Any], input_dir: str, models_dir: s
     typ = ModelTypes[model_desc['type']]
     name = model_desc['name']
     annotations = {'gz_name': name,
-                   'type': typ,}
+                   'type': typ,
+                   'complexity': 0}
     if typ == ModelTypes.MISSION_ONLY:
         annotations.update({'width': model_desc.get('width', 0.00001),
                             'length': model_desc.get('length', 0.00001)})
@@ -222,6 +232,7 @@ def to_annotations(model_desc: t.Dict[str, t.Any], input_dir: str, models_dir: s
     if typ != ModelTypes.MISSION_ONLY:
         sdf_path = handle_path(dir_path, url)
         info = process_sdf(dir_path, sdf_path)
+        annotations['complexity'] = info.complexity
         if not model_desc.get('dynamic_size', info.dynamic_size):
             annotations.update({'length': info.length,
                                 'width': info.width,

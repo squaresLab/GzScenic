@@ -12,6 +12,7 @@ class BaseModel:
     gz_name: 'base'
     heading: Range(0, 360) deg
     z: 0.0
+    complexity: 0
 
 
 class GreyWall(BaseModel):
@@ -25,6 +26,7 @@ class GreyWall(BaseModel):
     type: ModelTypes.GAZEBO_MODEL
     dynamic_size: True
     room_wall: False
+    complexity: 1
 
 
 def create_room(length, width, x=0, y=0, sides='NSWE', room_wall=True):
@@ -41,7 +43,7 @@ def create_room(length, width, x=0, y=0, sides='NSWE', room_wall=True):
 
 
 # Set up workspace
-width = 5
+width = 10
 length = 10
 heading = 0
 workspace = Workspace(RectangularRegion(0 @ 0, heading, width, length))

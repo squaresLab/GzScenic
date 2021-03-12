@@ -14,13 +14,19 @@ models:
     type: CUSTOM_MODEL
     #url: ////
     z: -1
+  - name: Cafe table
+    type: GAZEBO_MODEL
+    z: 0
+  - name: ball
+    type: CUSTOM_MODEL
+    z: 0
   - name: construction_cone
     type: GAZEBO_MODEL
     z: -1
     dynamic_size: False
   - name: fire_hydrant
     type: GAZEBO_MODEL
-    z: -1
+    z: 0
   - name: box
     type: CUSTOM_MODEL
     z: -1

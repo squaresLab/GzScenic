@@ -7,7 +7,7 @@ import time
 import argparse
 import random
 import importlib.metadata
-from shutil import copy
+from shutil import copy, rmtree
 import os
 import yaml
 
@@ -156,12 +156,16 @@ def main():
     if not args.noplt:
         import matplotlib.pyplot as plt
     success_count = 0
+    
+    if os.path.exists(args.outputPath):
+        rmtree(args.outputPath)
+    os.makedirs(args.outputPath)
+
     while not args.scenes_num or success_count < args.scenes_num:
         scene, _ = generateScene(scenario, args)
 
         if args.complexity:
-            c = scene_complexity(scene)
-            print("COMPLEXITY: %f" % c)
+            scene_complexity(scene, os.path.join(args.outputPath, 'complexity.yml'))
 
         if not args.noplt:
             if delay is None:

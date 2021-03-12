@@ -115,10 +115,6 @@ def scene_to_sdf(scene: Scene,
                  models_dir: str,
                  output: str) -> None:
 
-    if os.path.exists(output):
-        shutil.rmtree(output)
-    os.makedirs(output)
-
 
     no_models = {}
 
