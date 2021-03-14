@@ -172,6 +172,7 @@ def main():
                 scene.show(zoom=args.zoom)
             else:
                 scene.show(zoom=args.zoom, block=False)
+                plt.savefig(os.path.join(args.outputPath, 'plot.pdf'))
                 plt.pause(delay)
                 plt.clf()
 
