@@ -146,7 +146,7 @@ def scene_regions(scene: Scene) -> Tuple[List[Region], Tuple[float, float]]:
             if obj == ego:
                 continue
             waypoints.append(obj)
-        elif obj.gz_name == 'grey_wall' and obj.room_wall:
+        elif obj.gz_name == 'grey_wall' and type(obj).__name__ == 'BorderWall':
             hw, hl = obj.hw, obj.hl
             wall_lengths.append(hl*2)
             coords = [
