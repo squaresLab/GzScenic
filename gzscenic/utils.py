@@ -6,6 +6,7 @@ import urllib
 import requests
 
 from scenic.syntax.translator import ScenicLoader
+from scenic.core.specifiers import PropertyDefault
 
 
 def load_module(scenic_file_path: str) -> None:
@@ -91,6 +92,9 @@ def scenic_model_to_str(model_name: str, annotations: t.Dict[str, t.Any]) -> str
     for k, v in annotations.items():
         if type(v) == str:
             s += f'    {k}: "{v}"\n'
+        elif isinstance(v, PropertyDefault):
+            props = tuple(v.requiredProperties)
+            s += f'    {k}: self.{str(props[0])}\n'
         else:
             s += f'    {k}: {str(v)}\n'
     return s
