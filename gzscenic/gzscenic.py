@@ -14,6 +14,7 @@ import yaml
 import scenic.syntax.translator as translator
 import scenic.core.errors as errors
 from scenic.core.simulators import SimulationCreationError
+from scenic.core.scenarios import Scene
 
 from .translate import scene_to_sdf
 from .model_generator import generate_model
@@ -40,6 +41,8 @@ def setup_arg_parser():
     mainOptions.add_argument('-s', '--seed', help='random seed', type=int)
     mainOptions.add_argument('--load', help='load a scenic file', type=str, default='')
     mainOptions.add_argument('--dump', help='dump the scenic file', type=str, default='')
+    mainOptions.add_argument('--save-scene', help='save scene to yaml file', type=str, default='')
+    mainOptions.add_argument('--load-scene', help='load scene from yaml file', type=str, default='')
     mainOptions.add_argument('--verbose', help='verbose logging',
                              action='store_true')
     mainOptions.add_argument('--noplt', action='store_true',
@@ -144,7 +147,7 @@ def main():
     # Load scenario from file
     logger.info('Beginning scenario construction...')
     startTime = time.time()
-    scenario = errors.callBeginningScenicTrace(
+    scenario, namespace = errors.callBeginningScenicTrace(
         lambda: translator.scenarioFromFile(args.scenicFile,
                                             params=dict(args.param),
                                             model=args.model,
@@ -162,7 +165,18 @@ def main():
     os.makedirs(args.outputPath)
 
     while not args.scenes_num or success_count < args.scenes_num:
-        scene, _ = generateScene(scenario, args)
+
+        if not args.load_scene:
+            scene, _ = generateScene(scenario, args)
+        else:
+            with open(args.load_scene, 'r') as f:
+                d = yaml.load(f, Loader=yaml.Loader)
+                scene = Scene.from_dict(d, namespace)
+
+        if args.save_scene:
+            with open(args.save_scene, 'w') as f:
+                yaml.dump(scene.to_dict(), f)
+
 
         if args.complexity:
             scene_complexity(scene, os.path.join(args.outputPath, 'complexity.yml'))
