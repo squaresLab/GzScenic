@@ -122,18 +122,19 @@ def calculate_complexity(region: Region) -> float:
 
 
 def plot(region: Region,
-         all_points: List[Tuple[float, float]]) -> float:
+         all_points: List[Tuple[float, float]],
+         color: str) -> float:
     ch_points = np.array(region.coords)
 
     all_points = np.array(all_points)
     vision_points = np.array(list(region.vision_area.exterior.coords))
     #logger.info("all_points %s %s", all_points, all_points.shape)
     #logger.info("ch_points %s %s", ch_points, ch_points.shape)
-    plt.plot(all_points[:,0], all_points[:,1], 'o')
-    plt.plot(ch_points[:,0], ch_points[:,1], 'k-')
-    plt.plot(vision_points[:,0], vision_points[:,1], 'y--')
+    #plt.plot(all_points[:,0], all_points[:,1], 'o')
+    plt.plot(ch_points[:,0], ch_points[:,1], f'{color}-')
+    #plt.plot(vision_points[:,0], vision_points[:,1], f'{color}--')
 
-def scene_regions(scene: Scene) -> Tuple[List[Region], Tuple[float, float]]:
+def scene_regions(scene: Scene, plot_region=True) -> Tuple[List[Region], Tuple[float, float]]:
     
     ego = scene.egoObject
 
@@ -170,7 +171,7 @@ def scene_regions(scene: Scene) -> Tuple[List[Region], Tuple[float, float]]:
     all_regions = []
     start = ego
     for end in waypoints:
-        reset_objects(objects)
+        reset_objects(objects + walls)
         all_points = [start.position.coordinates, end.position.coordinates]
         wps = (Point(start.position.coordinates), Point(end.position.coordinates))
         current_poly = LineString(all_points)
@@ -199,7 +200,9 @@ def scene_regions(scene: Scene) -> Tuple[List[Region], Tuple[float, float]]:
                         vision_area,
                         in_vision_objects)
         all_regions.append(region)
-        plot(region, all_points)
+        colors = ['k', 'g']
+        if plot_region:
+            plot(region, all_points, colors[len(all_regions)-1])
         start = end
 
     assert len(all_regions) == len(waypoints)
@@ -207,9 +210,9 @@ def scene_regions(scene: Scene) -> Tuple[List[Region], Tuple[float, float]]:
     return all_regions, (min(wall_lengths), max(wall_lengths))
 
 
-def scene_complexity(scene: Scene, filename: str) -> None:
+def scene_complexity(scene: Scene, filename: str, plot_region=True) -> None:
 
-    regions, (w, l) = scene_regions(scene)
+    regions, (w, l) = scene_regions(scene, plot_region)
 
     with open(filename, 'w') as f:
         yaml.dump({

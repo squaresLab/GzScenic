@@ -254,6 +254,8 @@ def to_annotations(model_desc: t.Dict[str, t.Any], input_dir: str, models_dir: s
         annotations['heading'] = model_desc['heading']
     if 'dynamic_size' in model_desc:
         annotations['dynamic_size'] = model_desc['dynamic_size']
+    if 'color' in model_desc:
+        annotations['color'] = model_desc['color']
     annotations['allowCollisions'] = model_desc.get('allow_collisions', False)
     return annotations
 
