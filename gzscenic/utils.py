@@ -36,12 +36,18 @@ def build_file_tree(parent_path: str, file_tree: t.Dict, url: str):
 
 def gazebo_dir_and_path(models_dir: str, name: str) -> t.Tuple[str, bool]:
     dir_path = os.path.join(models_dir, name)
+    if os.path.exists(dir_path):
+        return dir_path, False
+
+    for gazebo_model_dir in str.split(os.getenv('GAZEBO_MODEL_PATH'), ':'):
+        gazebo_model_path = os.path.join(gazebo_model_dir, name)
+        if os.path.exists(gazebo_model_path):
+            return gazebo_model_path, False
+
     osrf_models = 'https://github.com/osrf/gazebo_models/tree/master/'
     quoted_name = urllib.parse.quote(name)
     res = requests.get(osrf_models + quoted_name)
     gazebo_db = res.status_code == 200
-    if os.path.exists(dir_path):
-        return dir_path, gazebo_db
     if gazebo_db:
         path = f'https://github.com/osrf/gazebo_models/trunk/{name}'
         os.system(f'svn export {path} {dir_path}')
@@ -79,7 +85,7 @@ def handle_path(dir_path: str, url: t.Optional[str] = '') -> str:
         for f in files:
             if f == 'model.sdf':
                 if root != dir_path:
-                    rel_path = os.path.rel_path(root, dir_path)
+                    rel_path = os.path.relpath(root, dir_path)
                     return os.path.join(rel_path, f)
                 else:
                     return f
